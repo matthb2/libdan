@@ -19,6 +19,18 @@
 #include "dan_vector.h"
 #include "dan_matrix.h"
 
+void dan_copy_2vector(const dan_2vector v, dan_2vector r)
+{
+    DAN_FOR_2(i)
+        r[i] = v[i];
+}
+
+void dan_copy_3vector(const dan_3vector v, dan_3vector r)
+{
+    DAN_FOR_3(i)
+        r[i] = v[i];
+}
+
 void dan_scale_2vector(dan_scalar a, const dan_2vector v, dan_2vector r)
 {
     DAN_FOR_2(i)
@@ -86,12 +98,12 @@ dan_scalar dan_magnitude_3vector(const dan_3vector v)
     return sqrt(dan_dot_3vector(v));
 }
 
-void dan_normalize_2vector(const dan_2vector v, dan_2vector r)
+void dan_unit_2vector(const dan_2vector v, dan_2vector r)
 {
     dan_scale_2vector(1.0/dan_magnitude_2vector(v),v,r);
 }
 
-void dan_normalize_3vector(const dan_3vector v, dan_3vector r)
+void dan_unit_3vector(const dan_3vector v, dan_3vector r)
 {
     dan_scale_3vector(1.0/dan_magnitude_3vector(v),v,r);
 }
@@ -106,5 +118,11 @@ void dan_divide_3vectors(const dan_3vector v1, const dan_3vector v2, dan_3vector
 {
     DAN_FOR_3(i)
         r[i] = v1[i]/v2[i];
+}
+
+void dan_normal_2vector(const dan_2vector v, dan_2vector r)
+{
+    r[0] = -v[1];
+    r[1] = v[0];
 }
 

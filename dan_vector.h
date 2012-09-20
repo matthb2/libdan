@@ -27,6 +27,8 @@
 typedef dan_scalar dan_2vector[2];
 typedef dan_scalar dan_3vector[3];
 
+void dan_copy_2vector(const dan_2vector v, dan_2vector r);
+void dan_copy_3vector(const dan_3vector v, dan_3vector r);
 void dan_scale_2vector(dan_scalar a, const dan_2vector v, dan_2vector r);
 void dan_scale_3vector(dan_scalar a, const dan_3vector v, dan_3vector r);
 void dan_add_2vectors(const dan_2vector v1, const dan_2vector v2, dan_2vector r);
@@ -38,9 +40,10 @@ dan_scalar dan_dot_2vector(const dan_2vector v);
 dan_scalar dan_dot_3vector(const dan_3vector v);
 dan_scalar dan_magnitude_2vector(const dan_2vector v);
 dan_scalar dan_magnitude_3vector(const dan_3vector v);
-void dan_normalize_2vector(const dan_2vector v, dan_2vector r);
-void dan_normalize_3vector(const dan_3vector v, dan_3vector r);
+void dan_unit_2vector(const dan_2vector v, dan_2vector r);
+void dan_unit_3vector(const dan_3vector v, dan_3vector r);
 void dan_divide_2vectors(const dan_2vector v1, const dan_2vector v2, dan_2vector r);
 void dan_divide_3vectors(const dan_2vector v1, const dan_2vector v2, dan_2vector r);
+void dan_normal_2vector(const dan_2vector v, dan_2vector r);
 
 #endif

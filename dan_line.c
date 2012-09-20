@@ -17,14 +17,33 @@
 #include "dan_natural.h"
 #include "dan_line.h"
 
+void dan_2line_from_2points(const dan_2point p1, const dan_2point p2, struct dan_2line* r)
+{
+    dan_2vector p1p2;
+    dan_subtract_2points(p2,p1,p1p2);
+    dan_normal_2vector(p1p2,r->normal);
+    dan_unit_2vector(r->normal,r->normal);
+    r->radius = dan_dot_2vectors(r->normal,p1);
+}
+
+void dan_equidistant_2line(const dan_2point p1, const dan_2point p2, struct dan_2line* r)
+{
+    struct dan_2line between;
+    dan_2line_from_2points(p1,p2,&between);
+    dan_2point midpoint;
+    dan_middle_2point(p1,p2,midpoint);
+    dan_normal_2vector(between.normal,r->normal);
+    r->radius = dan_dot_2vectors(r->normal,midpoint);
+}
+
 void dan_2line_intersection(const struct dan_2line* l1, const struct dan_2line* l2, dan_2point r)
 {
     dan_2vector ratio;
-    dan_divide_2vectors(l2->slope,l1->slope,ratio);
+    dan_divide_2vectors(l2->normal,l1->normal,ratio);
     DAN_FOR_2(i)
     {
-        r[i]  =        l2->c - ratio[1-i]*(l1->c);
-        r[i] /= l2->slope[i] - ratio[1-i]*(l1->slope[i]);
+        r[i]  = l2->radius    - ratio[1-i]*(l1->radius);
+        r[i] /= l2->normal[i] - ratio[1-i]*(l1->normal[i]);
     }
 }
 

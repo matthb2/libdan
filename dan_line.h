@@ -22,8 +22,8 @@
 
 struct dan_2line
 {
-    dan_scalar  c;
-    dan_2vector slope;
+    dan_scalar  radius;
+    dan_2vector normal;
 };
 
 struct dan_2line_segment
@@ -32,6 +32,8 @@ struct dan_2line_segment
     dan_2point end;
 };
 
+void dan_2line_from_2points(const dan_2point p1, const dan_2point p2, struct dan_2line* r);
+void dan_equidistant_2line(const dan_2point p1, const dan_2point p2, struct dan_2line* r);
 void dan_2line_intersection(const struct dan_2line* l1, const struct dan_2line* l2, dan_2point r);
 
 #endif
