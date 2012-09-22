@@ -37,8 +37,6 @@ static void dan_aa_new(dan_aa_tree* t)
 
 static void dan_aa_dispose(dan_aa_tree t)
 {
-    if (t == bottom)
-        fprintf(stderr,"disposing of bottom\n");
     free(t);
 }
 
