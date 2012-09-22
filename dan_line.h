@@ -20,20 +20,20 @@
 #include "dan_point.h"
 #include "dan_vector.h"
 
-struct dan_2line
+typedef struct
 {
     dan_scalar  radius;
     dan_2vector normal;
-};
+} dan_2line;
 
-struct dan_2line_segment
+typedef struct
 {
     dan_2point start;
     dan_2point end;
-};
+} dan_2line_segment;
 
-void dan_2line_from_2points(const dan_2point p1, const dan_2point p2, struct dan_2line* r);
-void dan_equidistant_2line(const dan_2point p1, const dan_2point p2, struct dan_2line* r);
-void dan_2line_intersection(const struct dan_2line* l1, const struct dan_2line* l2, dan_2point r);
+void dan_2line_from_2points(const dan_2point p1, const dan_2point p2, dan_2line* r);
+void dan_equidistant_2line(const dan_2point p1, const dan_2point p2, dan_2line* r);
+void dan_2line_intersection(const dan_2line* l1, const dan_2line* l2, dan_2point r);
 
 #endif

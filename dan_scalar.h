@@ -22,7 +22,4 @@
 
 typedef double dan_scalar;
 
-extern const dan_scalar dan_scalar_zero;
-extern const dan_scalar dan_scalar_one;
-
 #endif
