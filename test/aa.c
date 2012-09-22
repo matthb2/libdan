@@ -50,5 +50,9 @@ int main(int argc, char** argv)
     insert_tree(100,&tree);
     insert_tree(50,&tree);
     delete_tree(0,&tree);
+    delete_tree(50,&tree);
+    delete_tree(-1,&tree);
+    delete_tree(100,&tree);
+    delete_tree(1,&tree);
     return 0;
 }
