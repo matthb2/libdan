@@ -24,8 +24,10 @@
 #include <stdio.h>
 #include "dan_aa.h"
 
-static dan_aa_tree bottom;
-static dan_aa_tree deleted;
+static dan_aa_node bottom_node = 
+{ .left = &bottom_node, .right = &bottom_node, .level = 0, .key = 0 };
+static dan_aa_tree bottom = &bottom_node;
+static dan_aa_tree deleted = &bottom_node;
 static dan_aa_tree last;
 
 static void dan_aa_new(dan_aa_tree* t)
@@ -42,11 +44,6 @@ static void dan_aa_dispose(dan_aa_tree t)
 
 void dan_aa_init()
 {
-    dan_aa_new(&bottom);
-    bottom->level = 0;
-    bottom->left = bottom;
-    bottom->right = bottom;
-    deleted = bottom;
 }
 
 void dan_aa_tree_init(dan_aa_tree* t)
