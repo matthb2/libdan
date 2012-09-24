@@ -2,18 +2,19 @@
 #include <stdio.h>
 #include "../dan_aa.h"
 
-static void print_tree_r(dan_aa_tree t)
+static void print_tree_r(dan_aa_tree t, int indent)
 {
     if (t->left == t)
         return;
-    print_tree_r(t->left);
-    printf("%d ",t->key);
-    print_tree_r(t->right);
+    print_tree_r(t->left,indent+1);
+    for (int i=0; i < indent; ++i) putchar(' ');
+    printf("%d\n",t->key);
+    print_tree_r(t->right,indent+1);
 }
 
 static void print_tree(dan_aa_tree t)
 {
-    print_tree_r(t);
+    print_tree_r(t,0);
     printf("\n");
 }
 
@@ -49,10 +50,10 @@ int main(int argc, char** argv)
     insert_tree(-1,&tree);
     insert_tree(100,&tree);
     insert_tree(50,&tree);
-    delete_tree(0,&tree);
     delete_tree(50,&tree);
     delete_tree(-1,&tree);
     delete_tree(100,&tree);
     delete_tree(1,&tree);
+    delete_tree(0,&tree);
     return 0;
 }

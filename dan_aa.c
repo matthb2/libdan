@@ -124,9 +124,9 @@ void dan_aa_delete(int x, dan_aa_tree* t, bool* ok)
     }
     /* on the way back, we rebalance */
     else if (((*t)->left->level < (*t)->level-1)
-             &&((*t)->right->level < (*t)->level-1))
+             ||((*t)->right->level < (*t)->level-1))
     {
-        (*t)->level = (*t)->level-1;
+        --((*t)->level);
         if ((*t)->right->level > (*t)->level)
             (*t)->right->level = (*t)->level;
         dan_aa_skew(t);
