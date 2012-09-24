@@ -34,7 +34,7 @@ void dan_aa_tree_init(dan_aa_tree* t)
     *t = &bottom_node;
 }
 
-static void dan_aa_skew(dan_aa_tree* t)
+static void skew(dan_aa_tree* t)
 {
     dan_aa_tree temp;
     if ((*t)->left->level == (*t)->level)
@@ -46,7 +46,7 @@ static void dan_aa_skew(dan_aa_tree* t)
     }
 }
 
-static void dan_aa_split(dan_aa_tree* t)
+static void split(dan_aa_tree* t)
 {
     dan_aa_tree temp;
     if ((*t)->right->right->level == (*t)->level)
@@ -78,8 +78,8 @@ dan_aa_node* dan_aa_insert(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
             result = dan_aa_insert(x,&((*t)->right),less);
         else
             result = *t;
-        dan_aa_skew(t);
-        dan_aa_split(t);
+        skew(t);
+        split(t);
     }
     return result;
 }
@@ -112,11 +112,11 @@ static dan_aa_node* remove_successor(dan_aa_node* x, dan_aa_tree* t, dan_aa_less
         --((*t)->level);
         if ((*t)->right->level > (*t)->level)
             (*t)->right->level = (*t)->level;
-        dan_aa_skew(t);
-        dan_aa_skew(&((*t)->right));
-        dan_aa_skew(&((*t)->right->right));
-        dan_aa_split(t);
-        dan_aa_split(&((*t)->right));
+        skew(t);
+        skew(&((*t)->right));
+        skew(&((*t)->right->right));
+        split(t);
+        split(&((*t)->right));
     }
     return result;
 }
