@@ -141,6 +141,8 @@ static void swap_successor(dan_aa_node* successor, dan_aa_tree* t, dan_aa_less l
 dan_aa_node* dan_aa_delete(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
 {
     dan_aa_node* result = remove_successor(x,t,less);
+    if (!result)
+        return result;
     if (result != deleted)
         swap_successor(result,t,less);
     result = deleted;
