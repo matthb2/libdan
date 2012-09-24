@@ -33,8 +33,6 @@ typedef bool (*dan_aa_less)(dan_aa_node* a, dan_aa_node* b);
 
 void dan_aa_tree_init(dan_aa_tree* t);
 dan_aa_node* dan_aa_insert(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less);
-#ifdef NOT
 dan_aa_node* dan_aa_delete(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less);
-#endif
 
 #endif

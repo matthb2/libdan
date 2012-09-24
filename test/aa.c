@@ -42,18 +42,20 @@ static void insert_tree(int n, dan_aa_tree* t)
     print_tree(*t);
 }
 
-#ifdef NOT
-static void delete_tree(int x, dan_aa_tree* t)
+static void delete_tree(int n, dan_aa_tree* t)
 {
-    bool ok;
-    dan_aa_delete(x,t,&ok);
-    if (ok)
-        printf("deleted %d\n",x);
+    int_node x;
+    x.key = n;
+    dan_aa_node* result = dan_aa_delete((dan_aa_node*)&x,t,int_less);
+    if (((int_node*)result)->key == n)
+    {
+        printf("deleted %d\n",n);
+        free(result);
+    }
     else
-        printf("did not delete %d\n",x);
+        printf("did not delete %d, %p\n",n,result);
     print_tree(*t);
 }
-#endif
 
 int main(int argc, char** argv)
 {
@@ -64,12 +66,10 @@ int main(int argc, char** argv)
     insert_tree(-1,&tree);
     insert_tree(100,&tree);
     insert_tree(50,&tree);
-    /*
     delete_tree(50,&tree);
     delete_tree(-1,&tree);
     delete_tree(100,&tree);
     delete_tree(1,&tree);
     delete_tree(0,&tree);
-    */
     return 0;
 }

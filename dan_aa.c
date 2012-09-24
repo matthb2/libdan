@@ -26,10 +26,8 @@
 
 static dan_aa_node bottom_node = 
 { .left = &bottom_node, .right = &bottom_node, .level = 0 };
-#ifdef NOT
 static dan_aa_tree deleted = &bottom_node;
 static dan_aa_tree last;
-#endif
 
 void dan_aa_tree_init(dan_aa_tree* t)
 {
@@ -86,30 +84,26 @@ dan_aa_node* dan_aa_insert(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
     return result;
 }
 
-#ifdef NOT
-void dan_aa_delete(int x, dan_aa_tree* t, bool* ok)
+static dan_aa_node* remove_successor(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
 {
-    *ok = false;
+    dan_aa_node* result = 0;
     if (*t != &bottom_node)
     { /* search down the tree and set pointers last and deleted */
         last = *t;
-        if (x < (*t)->key)
-            dan_aa_delete(x,&((*t)->left),ok);
+        if (less(x,*t))
+            result = remove_successor(x,&((*t)->left),less);
         else
         {
             deleted = *t;
-            dan_aa_delete(x,&((*t)->right),ok);
+            result = remove_successor(x,&((*t)->right),less);
         }
     }
     /* at the bottom of the tree we remove the element (if it is present) */
     if ((*t == last)&&(deleted != &bottom_node)
-        &&(x == deleted->key))
+        &&(!less(x,deleted))&&(!less(deleted,x)))
     {
-        deleted->key = (*t)->key;
-        deleted = &bottom_node;
+        result = *t;
         *t = (*t)->right;
-        dan_aa_dispose(last);
-        *ok = true;
     }
     /* on the way back, we rebalance */
     else if (((*t)->left->level < (*t)->level-1)
@@ -124,6 +118,33 @@ void dan_aa_delete(int x, dan_aa_tree* t, bool* ok)
         dan_aa_split(t);
         dan_aa_split(&((*t)->right));
     }
+    return result;
 }
-#endif
+
+static void swap_successor(dan_aa_node* successor, dan_aa_tree* t, dan_aa_less less)
+{
+    if (less(deleted,*t))
+        swap_successor(successor,&((*t)->left),less);
+    else if (less(*t,deleted))
+        swap_successor(successor,&((*t)->right),less);
+    else
+    {
+        if (deleted != *t)
+            abort();
+        *t = successor;
+        (*t)->left = deleted->left;
+        (*t)->right = deleted->right;
+        (*t)->level = deleted->level;
+    }
+}
+
+dan_aa_node* dan_aa_delete(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
+{
+    dan_aa_node* result = remove_successor(x,t,less);
+    if (result != deleted)
+        swap_successor(result,t,less);
+    result = deleted;
+    deleted = &bottom_node;
+    return result;
+}
 
