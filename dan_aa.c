@@ -39,10 +39,6 @@ static void dan_aa_dispose(dan_aa_tree t)
     free(t);
 }
 
-void dan_aa_init()
-{
-}
-
 void dan_aa_tree_init(dan_aa_tree* t)
 {
     *t = &bottom_node;

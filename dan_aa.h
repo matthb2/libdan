@@ -30,7 +30,6 @@ struct dan_aa_node_struct
 };
 typedef struct dan_aa_node_struct dan_aa_node;
 
-void dan_aa_init(void);
 void dan_aa_tree_init(dan_aa_tree* t);
 void dan_aa_insert(int x, dan_aa_tree* t, bool* ok);
 void dan_aa_delete(int x, dan_aa_tree* t, bool* ok);

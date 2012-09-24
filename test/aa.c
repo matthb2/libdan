@@ -42,7 +42,6 @@ static void delete_tree(int x, dan_aa_tree* t)
 
 int main(int argc, char** argv)
 {
-    dan_aa_init();
     dan_aa_tree tree;
     dan_aa_tree_init(&tree);
     insert_tree(0,&tree);
