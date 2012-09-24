@@ -14,7 +14,8 @@
     limitations under the License.
 */
 
-/* These functions and data structures are from:
+/*
+   These functions and data structures are from:
       A. Andersson, “Balanced Search Trees Made Simple,” pp. 60-71, 1993.
    The "aa" prefix is for Arne Andersson.
    He deserves full credit for their functionality and simplicity.
@@ -26,8 +27,6 @@
 
 static dan_aa_node bottom_node = 
 { .left = &bottom_node, .right = &bottom_node, .level = 0 };
-static dan_aa_tree deleted = &bottom_node;
-static dan_aa_tree last;
 
 void dan_aa_tree_init(dan_aa_tree* t)
 {
@@ -84,25 +83,33 @@ dan_aa_node* dan_aa_insert(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
     return result;
 }
 
-static dan_aa_node* remove_successor(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
+struct remove_vars
 {
-    dan_aa_node* result = 0;
+    dan_aa_node* x;
+    dan_aa_less less;
+    dan_aa_node* deleted;
+    dan_aa_node* last;
+    dan_aa_node* successor;
+};
+
+static void remove_successor(dan_aa_tree* t, struct remove_vars* v)
+{
     if (*t != &bottom_node)
     { /* search down the tree and set pointers last and deleted */
-        last = *t;
-        if (less(x,*t))
-            result = remove_successor(x,&((*t)->left),less);
+        v->last = *t;
+        if (v->less(v->x,*t))
+            remove_successor(&((*t)->left),v);
         else
         {
-            deleted = *t;
-            result = remove_successor(x,&((*t)->right),less);
+            v->deleted = *t;
+            remove_successor(&((*t)->right),v);
         }
     }
     /* at the bottom of the tree we remove the element (if it is present) */
-    if ((*t == last)&&(deleted != &bottom_node)
-        &&(!less(x,deleted))&&(!less(deleted,x)))
+    if ((*t == v->last)&&(v->deleted != &bottom_node)
+        &&(!v->less(v->x,v->deleted))&&(!v->less(v->deleted,v->x)))
     {
-        result = *t;
+        v->successor = *t;
         *t = (*t)->right;
     }
     /* on the way back, we rebalance */
@@ -118,35 +125,38 @@ static dan_aa_node* remove_successor(dan_aa_node* x, dan_aa_tree* t, dan_aa_less
         split(t);
         split(&((*t)->right));
     }
-    return result;
 }
 
-static void swap_successor(dan_aa_node* successor, dan_aa_tree* t, dan_aa_less less)
+static void swap_successor(dan_aa_tree* t, struct remove_vars* v)
 {
-    if (less(deleted,*t))
-        swap_successor(successor,&((*t)->left),less);
-    else if (less(*t,deleted))
-        swap_successor(successor,&((*t)->right),less);
+    if (v->less(v->deleted,*t))
+        swap_successor(&((*t)->left),v);
+    else if (v->less(*t,v->deleted))
+        swap_successor(&((*t)->right),v);
     else
     {
-        if (deleted != *t)
+        if (v->deleted != *t)
             abort();
-        *t = successor;
-        (*t)->left = deleted->left;
-        (*t)->right = deleted->right;
-        (*t)->level = deleted->level;
+        *t = v->successor;
+        (*t)->left = v->deleted->left;
+        (*t)->right = v->deleted->right;
+        (*t)->level = v->deleted->level;
     }
 }
 
 dan_aa_node* dan_aa_delete(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
 {
-    dan_aa_node* result = remove_successor(x,t,less);
-    if (!result)
-        return result;
-    if (result != deleted)
-        swap_successor(result,t,less);
-    result = deleted;
-    deleted = &bottom_node;
-    return result;
+    struct remove_vars v;
+    v.x = x;
+    v.less = less;
+    v.deleted = &bottom_node;
+    v.last = 0;
+    v.successor = 0;
+    remove_successor(t,&v);
+    if (!v.successor)
+        return 0;
+    if (v.successor != v.deleted)
+        swap_successor(t,&v);
+    return v.deleted;
 }
 
