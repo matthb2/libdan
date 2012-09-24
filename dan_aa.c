@@ -26,7 +26,6 @@
 
 static dan_aa_node bottom_node = 
 { .left = &bottom_node, .right = &bottom_node, .level = 0, .key = 0 };
-static dan_aa_tree bottom = &bottom_node;
 static dan_aa_tree deleted = &bottom_node;
 static dan_aa_tree last;
 
@@ -46,7 +45,7 @@ void dan_aa_init()
 
 void dan_aa_tree_init(dan_aa_tree* t)
 {
-    *t = bottom;
+    *t = &bottom_node;
 }
 
 static void dan_aa_skew(dan_aa_tree* t)
@@ -76,12 +75,12 @@ static void dan_aa_split(dan_aa_tree* t)
 
 void dan_aa_insert(int x, dan_aa_tree* t, bool* ok)
 {
-    if (*t == bottom)
+    if (*t == &bottom_node)
     {
         dan_aa_new(t);
         (*t)->key = x;
-        (*t)->left = bottom;
-        (*t)->right = bottom;
+        (*t)->left = &bottom_node;
+        (*t)->right = &bottom_node;
         (*t)->level = 1;
         *ok = true;
     }
@@ -101,7 +100,7 @@ void dan_aa_insert(int x, dan_aa_tree* t, bool* ok)
 void dan_aa_delete(int x, dan_aa_tree* t, bool* ok)
 {
     *ok = false;
-    if (*t != bottom)
+    if (*t != &bottom_node)
     { /* search down the tree and set pointers last and deleted */
         last = *t;
         if (x < (*t)->key)
@@ -113,11 +112,11 @@ void dan_aa_delete(int x, dan_aa_tree* t, bool* ok)
         }
     }
     /* at the bottom of the tree we remove the element (if it is present) */
-    if ((*t == last)&&(deleted != bottom)
+    if ((*t == last)&&(deleted != &bottom_node)
         &&(x == deleted->key))
     {
         deleted->key = (*t)->key;
-        deleted = bottom;
+        deleted = &bottom_node;
         *t = (*t)->right;
         dan_aa_dispose(last);
         *ok = true;
