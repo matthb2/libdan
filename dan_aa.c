@@ -25,19 +25,11 @@
 #include "dan_aa.h"
 
 static dan_aa_node bottom_node = 
-{ .left = &bottom_node, .right = &bottom_node, .level = 0, .key = 0 };
+{ .left = &bottom_node, .right = &bottom_node, .level = 0 };
+#ifdef NOT
 static dan_aa_tree deleted = &bottom_node;
 static dan_aa_tree last;
-
-static void dan_aa_new(dan_aa_tree* t)
-{
-    *t = malloc(sizeof(**t));
-}
-
-static void dan_aa_dispose(dan_aa_tree t)
-{
-    free(t);
-}
+#endif
 
 void dan_aa_tree_init(dan_aa_tree* t)
 {
@@ -69,30 +61,32 @@ static void dan_aa_split(dan_aa_tree* t)
     }
 }
 
-void dan_aa_insert(int x, dan_aa_tree* t, bool* ok)
+dan_aa_node* dan_aa_insert(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
 {
+    dan_aa_node* result;
     if (*t == &bottom_node)
     {
-        dan_aa_new(t);
-        (*t)->key = x;
+        result = x;
+        *t = x;
         (*t)->left = &bottom_node;
         (*t)->right = &bottom_node;
         (*t)->level = 1;
-        *ok = true;
     }
     else
     {
-        if (x < (*t)->key)
-            dan_aa_insert(x,&((*t)->left),ok);
-        else if (x > (*t)->key)
-            dan_aa_insert(x,&((*t)->right),ok);
+        if (less(x,*t))
+            result = dan_aa_insert(x,&((*t)->left),less);
+        else if (less(*t,x))
+            result = dan_aa_insert(x,&((*t)->right),less);
         else
-            *ok = false;
+            result = *t;
         dan_aa_skew(t);
         dan_aa_split(t);
     }
+    return result;
 }
 
+#ifdef NOT
 void dan_aa_delete(int x, dan_aa_tree* t, bool* ok)
 {
     *ok = false;
@@ -131,4 +125,5 @@ void dan_aa_delete(int x, dan_aa_tree* t, bool* ok)
         dan_aa_split(&((*t)->right));
     }
 }
+#endif
 
