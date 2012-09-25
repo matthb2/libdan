@@ -46,7 +46,7 @@ static void delete_tree(int n, dan_aa_tree* t)
 {
     int_node x;
     x.key = n;
-    dan_aa_node* result = dan_aa_delete((dan_aa_node*)&x,t,int_less);
+    dan_aa_node* result = dan_aa_remove((dan_aa_node*)&x,t,int_less);
     if (((int_node*)result)->key == n)
     {
         printf("deleted %d\n",n);

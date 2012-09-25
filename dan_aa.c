@@ -19,6 +19,9 @@
       A. Andersson, “Balanced Search Trees Made Simple,” pp. 60-71, 1993.
    The "aa" prefix is for Arne Andersson.
    He deserves full credit for their functionality and simplicity.
+   I have modified them such that nodes are intrusive rather than
+   containing a key which is the reason for the "less" function pointers
+   and the more complicated remove function.
 */
 
 #include <stdlib.h>
@@ -144,7 +147,7 @@ static void swap_successor(dan_aa_tree* t, struct remove_vars* v)
     }
 }
 
-dan_aa_node* dan_aa_delete(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
+dan_aa_node* dan_aa_remove(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
 {
     struct remove_vars v;
     v.x = x;
@@ -158,5 +161,17 @@ dan_aa_node* dan_aa_delete(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
     if (v.successor != v.deleted)
         swap_successor(t,&v);
     return v.deleted;
+}
+
+dan_aa_node* dan_aa_find(dan_aa_node* x, dan_aa_tree t, dan_aa_less less)
+{
+    if (t == &bottom_node)
+        return 0;
+    if (less(x,t))
+        return dan_aa_find(x,t->left,less);
+    else if (less(t,x))
+        return dan_aa_find(x,t->right,less);
+    else
+        return t;
 }
 
