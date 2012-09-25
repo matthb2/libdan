@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include "dan_mpi.h"
 
-void dan_mpi_send(dan_mpi* i, dan_mpi_message* m, int to)
+void dan_mpi_send(dan_mpi_message* m, int to, int tag)
 {
     int result;
     result = MPI_Issend(
@@ -26,8 +26,8 @@ void dan_mpi_send(dan_mpi* i, dan_mpi_message* m, int to)
             m->buffer.size,
             MPI_BYTE,
             to,
-            i->tag,
-            i->communicator,
+            tag,
+            MPI_COMM_WORLD,
             &(m->request));
     if (result != MPI_SUCCESS)
     {
@@ -49,12 +49,12 @@ bool dan_mpi_received(dan_mpi_message* m)
     return flag;
 }
 
-bool dan_mpi_try_receiving(dan_mpi* i, dan_mpi_message* m, int from)
+bool dan_mpi_try_receiving(dan_mpi_message* m, int from, int tag)
 {
     MPI_Status status;
     int flag;
     int result;
-    result = MPI_Iprobe(from,i->tag,i->communicator,&flag,&status);
+    result = MPI_Iprobe(from,tag,MPI_COMM_WORLD,&flag,&status);
     if (result != MPI_SUCCESS)
     {
         fprintf(stderr,"libdan failed to MPI_Iprobe\n");
@@ -75,8 +75,8 @@ bool dan_mpi_try_receiving(dan_mpi* i, dan_mpi_message* m, int from)
             m->buffer.size,
             MPI_BYTE,
             from,
-            i->tag,
-            i->communicator,
+            tag,
+            MPI_COMM_WORLD,
             MPI_STATUS_IGNORE);
     if (result != MPI_SUCCESS)
     {
@@ -86,10 +86,9 @@ bool dan_mpi_try_receiving(dan_mpi* i, dan_mpi_message* m, int from)
     return true;
 }
 
-void dan_mpi_unique(dan_mpi* i)
+int dan_mpi_unique_tag(void)
 {
     static int global_tag = 0;
-    i->tag = global_tag++;
-    i->communicator = MPI_COMM_WORLD;
+    return global_tag++;
 }
 
