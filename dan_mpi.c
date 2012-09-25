@@ -86,3 +86,10 @@ bool dan_mpi_try_receiving(dan_mpi* i, dan_mpi_message* m, int from)
     return true;
 }
 
+void dan_mpi_unique(dan_mpi* i)
+{
+    static int global_tag = 0;
+    i->tag = global_tag++;
+    i->communicator = MPI_COMM_WORLD;
+}
+

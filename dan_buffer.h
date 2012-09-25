@@ -25,6 +25,8 @@ typedef struct
     size_t size;
 } dan_buffer;
 
+#define DAN_BUFFER_INIT { .data = 0, .size = 0 }
+
 void dan_buffer_realloc(dan_buffer* b, size_t size);
 
 #endif
