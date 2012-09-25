@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 2.6)
 option(BUILD_STRUCTURES "build common data structures" ON)
 option(BUILD_GEOMETRY "build the geometry system" ON)
 option(BUILD_MESSAGING "build the messaging system" ON)
-set(DAN_SOURCES dan_check.c)
+set(DAN_SOURCES dan_check.c dan_memory.c)
+install(FILES dan_memory.h DESTINATION include)
 if (BUILD_STRUCTURES)
     set(DAN_SOURCES ${DAN_SOURCES} dan_aa.c dan_list.c)
+    install(FILES dan_aa.h dan_list.h DESTINATION include)
     add_executable(aa test/aa.c)
     target_link_libraries(aa dan)
 endif (BUILD_STRUCTURES)
@@ -14,11 +16,21 @@ if (BUILD_GEOMETRY)
         dan_matrix.c
         dan_point.c
         dan_vector.c)
+    install(FILES
+            dan_line.h
+            dan_matrix.h
+            dan_point.h
+            dan_vector.h
+            DESTINATION include)
 endif (BUILD_GEOMETRY)
 if (BUILD_MESSAGING)
     set(DAN_SOURCES ${DAN_SOURCES}
         dan_buffer.c
-        dan_memory.c
         dan_mpi.c)
+    install(FILES
+            dan_buffer.h
+            dan_mpi.h
+            DESTINATION include)
 endif (BUILD_MESSAGING)
 add_library(dan ${DAN_SOURCES})
+install(TARGETS dan LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
