@@ -24,7 +24,7 @@ typedef dan_2vector dan_2matrix[2];
 typedef dan_3vector dan_3matrix[3];
 
 void dan_multiply_2matrix_2vector(const dan_2matrix m, const dan_2vector v, dan_2vector r);
-void dan_multiply_3matrix_3vector(const dan_3matrix m, const dan_3vector v, dan_3vector r);
+void dan_multiply_3matrix_3vector(dan_3matrix m, const dan_3vector v, dan_3vector r);
 void dan_cross_3vector(const dan_3vector v, dan_3matrix r);
 
 #endif

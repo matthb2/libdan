@@ -23,7 +23,7 @@ void dan_multiply_2matrix_2vector(const dan_2matrix m, const dan_2vector v, dan_
         r[i] = dan_dot_2vectors(m[i],v);
 }
 
-void dan_multiply_3matrix_3vector(const dan_3matrix m, const dan_3vector v, dan_3vector r)
+void dan_multiply_3matrix_3vector(dan_3matrix m, const dan_3vector v, dan_3vector r)
 {
     DAN_FOR_3(i)
         r[i] = dan_dot_3vectors(m[i],v);
