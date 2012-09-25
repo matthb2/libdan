@@ -16,6 +16,9 @@ if (BUILD_GEOMETRY)
         dan_vector.c)
 endif (BUILD_GEOMETRY)
 if (BUILD_MESSAGING)
-    set(DAN_SOURCES ${DAN_SOURCES})
+    set(DAN_SOURCES ${DAN_SOURCES}
+        dan_buffer.c
+        dan_memory.c
+        dan_mpi.c)
 endif (BUILD_MESSAGING)
 add_library(dan ${DAN_SOURCES})
