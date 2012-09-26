@@ -31,11 +31,23 @@ typedef struct
 #define DAN_MPI_MESSAGE_INIT \
 { .buffer = DAN_BUFFER_INIT, .peer = 0, .request = MPI_REQUEST_NULL }
 
+typedef struct
+{
+    int tag;
+    int phase;
+    dan_mpi_message message;
+} dan_mpi_ibarrier;
+
+int  dan_mpi_size();
+int  dan_mpi_rank();
 void dan_mpi_send(dan_mpi_message* m, int to, int tag);
-bool dan_mpi_received(dan_mpi_message* m);
+bool dan_mpi_done(dan_mpi_message* m);
 bool dan_mpi_try_receiving(dan_mpi_message* m, int from, int tag);
 
 /* returns global_tag++ */
 int dan_mpi_unique_tag(void);
+
+void dan_mpi_begin_ibarrier(dan_mpi_ibarrier* i, int tag);
+bool dan_mpi_ibarrier_done(dan_mpi_ibarrier* i);
 
 #endif
