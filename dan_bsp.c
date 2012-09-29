@@ -13,10 +13,10 @@ void dan_bsp_init(dan_bsp* b, int tag, int ibarrier_tag)
         exit(0);
     }
     b->tag = tag;
-    b->ibarrier->tag = ibarrier_tag;
+    b->ibarrier.tag = ibarrier_tag;
 }
 
-static void free_all_takers(dan_aa_tree& t)
+static void free_all_takers(dan_aa_tree* t)
 {
     if (*t == &dan_aa_bottom)
         return;
@@ -25,15 +25,15 @@ static void free_all_takers(dan_aa_tree& t)
     dan_bsp_receiver* receiver;
     receiver = (dan_bsp_receiver*) *t;
     dan_mpi_free(&(receiver->message));
-    dan_free(*t);
-    **t = &dan_aa_bottom;
+    dan_free(receiver);
+    *t = &dan_aa_bottom;
 }
 
 void dan_bsp_begin_superstep(dan_bsp* b)
 {
     /* ensures no one starts a new superstep while others are receiving
        in the past superstep */
-    if (b->state == receiving)
+    if (b->state == dan_bsp_receiving)
         while (!dan_mpi_ibarrier_done(&(b->ibarrier)));
     free_all_takers(&(b->tree));
     b->state = sending;
@@ -48,7 +48,7 @@ static bool receiver_less(dan_aa_node* a, dan_aa_node* b)
 static dan_bsp_receiver* find_receiver(dan_aa_tree t, int peer)
 {
     dan_bsp_receiver key;
-    key->message.peer = peer;
+    key.message.peer = peer;
     return (dan_bsp_receiver*) dan_aa_find((dan_aa_node*)&key,t,receiver_less);
 }
 
@@ -138,12 +138,12 @@ bool dan_bsp_receive(dan_bsp* b)
 {
     while (!dan_mpi_receive(&(b->received),b->tag))
     {
-        if (b->state = bsp_sending)
+        if (b->state == dan_bsp_sending)
         {
             if (done_sending(b->tree))
             {
-                dan_mpi_begin_ibarrier(&(b->ibarrier),b->ibarrier->tag);
-                b->state = bsp_receiving;
+                dan_mpi_begin_ibarrier(&(b->ibarrier),b->ibarrier.tag);
+                b->state = dan_bsp_receiving;
             }
         }
         else if (dan_mpi_ibarrier_done(&(b->ibarrier)))
