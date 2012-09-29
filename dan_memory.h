@@ -22,5 +22,6 @@
 void* dan_malloc(size_t size);
 void* dan_realloc(void* p, size_t size);
 void dan_free(void* p);
+void* dan_pointer_add(void* p, ptrdiff_t bytes);
 
 #endif

@@ -52,3 +52,8 @@ void dan_free(void* p)
     free(p);
 }
 
+void* dan_pointer_add(void* p, ptrdiff_t bytes)
+{
+    return ((char*)p)+bytes;
+}
+

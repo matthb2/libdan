@@ -17,8 +17,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "dan_mpi.h"
+#include "dan_memory.h"
 
-int  dan_mpi_size()
+int  dan_mpi_size(void)
 {
     int size;
     int result = MPI_Comm_size(MPI_COMM_WORLD,&size);
@@ -30,7 +31,7 @@ int  dan_mpi_size()
     return size;
 }
 
-int  dan_mpi_rank()
+int  dan_mpi_rank(void)
 {
     int rank;
     int result = MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -180,5 +181,27 @@ bool dan_mpi_ibarrier_done(dan_mpi_ibarrier* i)
     }
     start_ibarrier_step(i);
     return false;
+}
+
+void dan_mpi_begin_unpacking(dan_mpi_message* m)
+{
+    m->buffer.size = 0;
+}
+
+void* dan_mpi_unpack(dan_mpi_message* m, size_t bytes)
+{
+    void* at = dan_mpi_at(m);
+    m->buffer.size += bytes;
+    return at;
+}
+
+void* dan_mpi_at(dan_mpi_message* m)
+{
+    return dan_pointer_add(m->buffer.data,m->buffer.size);
+}
+
+void dan_mpi_free(dan_mpi_message* m)
+{
+    dan_buffer_realloc(&(m->buffer),0);
 }
 
