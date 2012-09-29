@@ -19,7 +19,7 @@
 
 #include <stdbool.h>
 #include <mpi.h>
-#include "dan_buffer.h"
+#include "dan_memory.h"
 
 typedef struct
 {
