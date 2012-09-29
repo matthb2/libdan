@@ -28,13 +28,7 @@
 #include <stdio.h>
 #include "dan_aa.h"
 
-static dan_aa_node bottom_node = 
-{ .left = &bottom_node, .right = &bottom_node, .level = 0 };
-
-void dan_aa_tree_init(dan_aa_tree* t)
-{
-    *t = &bottom_node;
-}
+dan_aa_node dan_aa_bottom = DAN_AA_NODE_INIT;
 
 static void skew(dan_aa_tree* t)
 {
@@ -64,12 +58,12 @@ static void split(dan_aa_tree* t)
 dan_aa_node* dan_aa_insert(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
 {
     dan_aa_node* result;
-    if (*t == &bottom_node)
+    if (*t == &dan_aa_bottom)
     {
         result = x;
         *t = x;
-        (*t)->left = &bottom_node;
-        (*t)->right = &bottom_node;
+        (*t)->left = &dan_aa_bottom;
+        (*t)->right = &dan_aa_bottom;
         (*t)->level = 1;
     }
     else
@@ -97,7 +91,7 @@ struct remove_vars
 
 static void remove_successor(dan_aa_tree* t, struct remove_vars* v)
 {
-    if (*t != &bottom_node)
+    if (*t != &dan_aa_bottom)
     { /* search down the tree and set pointers last and deleted */
         v->last = *t;
         if (v->less(v->x,*t))
@@ -109,7 +103,7 @@ static void remove_successor(dan_aa_tree* t, struct remove_vars* v)
         }
     }
     /* at the bottom of the tree we remove the element (if it is present) */
-    if ((*t == v->last)&&(v->deleted != &bottom_node)
+    if ((*t == v->last)&&(v->deleted != &dan_aa_bottom)
         &&(!v->less(v->x,v->deleted))&&(!v->less(v->deleted,v->x)))
     {
         v->successor = *t;
@@ -152,7 +146,7 @@ dan_aa_node* dan_aa_remove(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
     struct remove_vars v;
     v.x = x;
     v.less = less;
-    v.deleted = &bottom_node;
+    v.deleted = &dan_aa_bottom;
     v.last = 0;
     v.successor = 0;
     remove_successor(t,&v);
@@ -165,7 +159,7 @@ dan_aa_node* dan_aa_remove(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less)
 
 dan_aa_node* dan_aa_find(dan_aa_node* x, dan_aa_tree t, dan_aa_less less)
 {
-    if (t == &bottom_node)
+    if (t == &dan_aa_bottom)
         return 0;
     if (less(x,t))
         return dan_aa_find(x,t->left,less);

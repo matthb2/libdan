@@ -29,9 +29,14 @@ struct dan_aa_node_struct
 };
 typedef struct dan_aa_node_struct dan_aa_node;
 
+extern dan_aa_node dan_aa_bottom;
+#define DAN_AA_TREE_INIT &dan_aa_bottom
+
+#define DAN_AA_NODE_INIT \
+{ .left = &dan_aa_bottom, .right = &dan_aa_bottom, .level = 0 }
+
 typedef bool (*dan_aa_less)(dan_aa_node* a, dan_aa_node* b);
 
-void dan_aa_tree_init(dan_aa_tree* t);
 dan_aa_node* dan_aa_insert(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less);
 dan_aa_node* dan_aa_remove(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less);
 dan_aa_node* dan_aa_find(dan_aa_node* x, dan_aa_tree t, dan_aa_less less);
