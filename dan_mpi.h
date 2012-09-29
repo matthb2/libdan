@@ -38,6 +38,9 @@ typedef struct
     dan_mpi_message message;
 } dan_mpi_ibarrier;
 
+#define DAN_MPI_IBARRIER_INIT \
+{ .tag = 0, .phase = 0, .message = DAN_MPI_MESSAGE_INIT }
+
 int  dan_mpi_size(void);
 int  dan_mpi_rank(void);
 void dan_mpi_send(dan_mpi_message* m, int tag);
