@@ -53,9 +53,6 @@ int dan_mpi_unique_tag(void);
 void dan_mpi_begin_ibarrier(dan_mpi_ibarrier* i, int tag);
 bool dan_mpi_ibarrier_done(dan_mpi_ibarrier* i);
 
-void dan_mpi_begin_unpacking(dan_mpi_message* m);
-void* dan_mpi_unpack(dan_mpi_message* m, size_t bytes);
-void* dan_mpi_at(dan_mpi_message* m);
 void dan_mpi_free(dan_mpi_message* m);
 
 #endif

@@ -183,23 +183,6 @@ bool dan_mpi_ibarrier_done(dan_mpi_ibarrier* i)
     return false;
 }
 
-void dan_mpi_begin_unpacking(dan_mpi_message* m)
-{
-    m->buffer.size = 0;
-}
-
-void* dan_mpi_unpack(dan_mpi_message* m, size_t bytes)
-{
-    void* at = dan_mpi_at(m);
-    m->buffer.size += bytes;
-    return at;
-}
-
-void* dan_mpi_at(dan_mpi_message* m)
-{
-    return dan_pointer_add(m->buffer.data,m->buffer.size);
-}
-
 void dan_mpi_free(dan_mpi_message* m)
 {
     dan_buffer_realloc(&(m->buffer),0);
