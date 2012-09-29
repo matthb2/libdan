@@ -25,10 +25,8 @@ if (BUILD_GEOMETRY)
 endif (BUILD_GEOMETRY)
 if (BUILD_MESSAGING)
     set(DAN_SOURCES ${DAN_SOURCES}
-        dan_buffer.c
         dan_mpi.c)
     install(FILES
-            dan_buffer.h
             dan_mpi.h
             DESTINATION include)
     add_executable(ibarrier test/mpi_ibarrier.c)
