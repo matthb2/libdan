@@ -19,6 +19,8 @@
 
 void dan_buffer_realloc(dan_buffer* b, size_t size)
 {
+    if (b->size == size)
+        return;
     b->data = dan_realloc(b->data,size);
     b->size = size;
 }

@@ -31,6 +31,8 @@ if (BUILD_MESSAGING)
             dan_buffer.h
             dan_mpi.h
             DESTINATION include)
+    add_executable(ibarrier test/mpi_ibarrier.c)
+    target_link_libraries(ibarrier dan)
 endif (BUILD_MESSAGING)
 add_library(dan ${DAN_SOURCES})
 install(TARGETS dan LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)

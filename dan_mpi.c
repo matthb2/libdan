@@ -42,14 +42,14 @@ int  dan_mpi_rank()
     return rank;
 }
 
-void dan_mpi_send(dan_mpi_message* m, int to, int tag)
+void dan_mpi_send(dan_mpi_message* m, int tag)
 {
     int result;
     result = MPI_Issend(
             m->buffer.data,
             m->buffer.size,
             MPI_BYTE,
-            to,
+            m->peer,
             tag,
             MPI_COMM_WORLD,
             &(m->request));
@@ -73,12 +73,12 @@ bool dan_mpi_done(dan_mpi_message* m)
     return flag;
 }
 
-bool dan_mpi_try_receiving(dan_mpi_message* m, int from, int tag)
+bool dan_mpi_receive(dan_mpi_message* m, int tag)
 {
     MPI_Status status;
     int flag;
     int result;
-    result = MPI_Iprobe(from,tag,MPI_COMM_WORLD,&flag,&status);
+    result = MPI_Iprobe(m->peer,tag,MPI_COMM_WORLD,&flag,&status);
     if (result != MPI_SUCCESS)
     {
         fprintf(stderr,"libdan failed using MPI_Iprobe\n");
@@ -98,7 +98,7 @@ bool dan_mpi_try_receiving(dan_mpi_message* m, int from, int tag)
             m->buffer.data,
             m->buffer.size,
             MPI_BYTE,
-            from,
+            m->peer,
             tag,
             MPI_COMM_WORLD,
             MPI_STATUS_IGNORE);
@@ -116,75 +116,69 @@ int dan_mpi_unique_tag(void)
     return global_tag++;
 }
 
-void dan_mpi_begin_ibarrier(dan_mpi_ibarrier* i, int tag)
+static bool ibarrier_sending(dan_mpi_ibarrier* i)
 {
-    static char message = 'i';
-    i->tag = tag;
-    i->phase = 0;
-    i->message.buffer.data = &message;
-    i->message.buffer.size = sizeof(message);
-    i->message.peer = 1^dan_mpi_rank();
-    if (i->message.peer < dan_mpi_size())
-        dan_mpi_send(&(i->message),i->message.peer,tag);
+    int rank = dan_mpi_rank();
+    int bit = i->message.peer^rank;
+    int send = (bit&rank)?1:0;
+    send = i->phase^send;
+    return send;
 }
 
-static bool ibarrier_down(int bit, int size, dan_mpi_ibarrier* i)
+static void start_ibarrier_step(dan_mpi_ibarrier* i)
 {
-    bit >>= 1;
-    if (!bit)
+    if (i->message.peer >= dan_mpi_size())
+        return;
+    if (ibarrier_sending(i))
+        dan_mpi_send(&(i->message),i->tag);
+}
+
+void dan_mpi_begin_ibarrier(dan_mpi_ibarrier* i, int tag)
+{
+    i->tag = tag;
+    i->phase = 0;
+    i->message.buffer.data = 0;
+    i->message.buffer.size = 0;
+    i->message.peer = 1^dan_mpi_rank();
+    start_ibarrier_step(i);
+}
+
+static bool ibarrier_step_done(dan_mpi_ibarrier* i)
+{
+    if (i->message.peer >= dan_mpi_size())
         return true;
-    if (i->message.peer < size)
-        dan_mpi_send(&(i->message),i->message.peer,i->tag);
-    return false;
+    if (ibarrier_sending(i))
+        return dan_mpi_done(&(i->message));
+    else
+        return dan_mpi_receive(&(i->message),i->tag);
+}
+
+static void ibarrier_shift(dan_mpi_ibarrier* i)
+{
+    int rank = dan_mpi_rank();
+    int bit = i->message.peer^rank;
+    if (i->phase == 0)
+        bit <<= 1;
+    else
+        bit >>= 1;
+    i->message.peer = bit^rank;
 }
 
 bool dan_mpi_ibarrier_done(dan_mpi_ibarrier* i)
 {
+    if (!ibarrier_step_done(i))
+        return false;
     int rank = dan_mpi_rank();
-    int size = dan_mpi_size();
-    int bit = i->message.peer ^ rank;
-    if (!bit) //handles calls that happen after the first 'return true'
-        return true;
-    if (bit >= size) //rank 0 goes from phase 0 to phase 1 here (it has no 1 bits)
-    {
-        bit >>= 1;
+    int bit = i->message.peer^rank;
+    if ((i->phase == 0)&&((bit&rank)||((rank == 0)&&(i->message.peer >= dan_mpi_size()))))
         i->phase = 1;
-        return !bit; //return immediately in case size==1
-    }
-    if (bit&rank) //turning point from phase 0 to phase 1
-    {
-        if (i->phase == 0)
-        { //wait for the send at the end of phase 0 to be done
-            if ((i->message.peer >= size)||dan_mpi_done(&(i->message)))
-                i->phase = 1; //now its phase 1
-        }
-        else
-        { //wait for the incoming message to begin phase1
-            if ((i->message.peer >= size)
-                ||dan_mpi_try_receiving(&(i->message),i->message.peer,i->tag))
-                return ibarrier_down(bit,size,i); //start going down, sending
-        }
-    }
     else
     {
-        if (i->phase == 0)
-        { //wait for message from the sender for this bit
-            if ((i->message.peer >= size)
-                ||(dan_mpi_try_receiving(&(i->message),i->message.peer,i->tag)))
-            {
-                bit <<= 1; //shift bit up
-                i->message.peer = bit^rank;
-                //if we are the sender for this bit, send
-                if ((i->message.peer < size)&&(bit&rank))
-                    dan_mpi_send(&(i->message),i->message.peer,i->tag);
-            }
-        }
-        else
-        { //wait for one down send to be done, then move down and send again
-            if ((i->message.peer >= size)||dan_mpi_done(&(i->message)))
-                return ibarrier_down(bit,size,i);
-        }
+        ibarrier_shift(i);
+        if (i->message.peer == rank)
+            return true;
     }
+    start_ibarrier_step(i);
     return false;
 }
 

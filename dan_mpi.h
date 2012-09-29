@@ -40,9 +40,9 @@ typedef struct
 
 int  dan_mpi_size();
 int  dan_mpi_rank();
-void dan_mpi_send(dan_mpi_message* m, int to, int tag);
+void dan_mpi_send(dan_mpi_message* m, int tag);
 bool dan_mpi_done(dan_mpi_message* m);
-bool dan_mpi_try_receiving(dan_mpi_message* m, int from, int tag);
+bool dan_mpi_receive(dan_mpi_message* m, int tag);
 
 /* returns global_tag++ */
 int dan_mpi_unique_tag(void);
