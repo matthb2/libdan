@@ -12,11 +12,13 @@ if (BUILD_STRUCTURES)
 endif (BUILD_STRUCTURES)
 if (BUILD_GEOMETRY)
     set(DAN_SOURCES ${DAN_SOURCES}
+        dan_circle.c
         dan_line.c
         dan_matrix.c
         dan_point.c
         dan_vector.c)
     install(FILES
+            dan_circle.h
             dan_line.h
             dan_matrix.h
             dan_point.h
