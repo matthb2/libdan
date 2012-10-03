@@ -13,7 +13,6 @@ int main(int argc, char** argv)
     int message = 42;
     int peer = (rank+1)%size;
     dan_bsp_reserve(&bsp,peer,sizeof(message));
-    dan_bsp_allocate(&bsp);
     dan_bsp_begin_packing(&bsp);
     int* packed = dan_bsp_pack(&bsp,peer,sizeof(message));
     *packed = message;
@@ -29,7 +28,6 @@ int main(int argc, char** argv)
     message = 128;
     peer = (rank+(size-1))%size;
     dan_bsp_reserve(&bsp,peer,sizeof(message));
-    dan_bsp_allocate(&bsp);
     dan_bsp_begin_packing(&bsp);
     packed = dan_bsp_pack(&bsp,peer,sizeof(message));
     *packed = message;

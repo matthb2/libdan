@@ -74,11 +74,6 @@ static void allocate(dan_aa_tree t)
     allocate(t->right);
 }
 
-void dan_bsp_allocate(dan_bsp* b)
-{
-    allocate(b->tree);
-}
-
 static void begin_packing(dan_aa_tree t)
 {
     if (t == &dan_aa_bottom)
@@ -90,6 +85,7 @@ static void begin_packing(dan_aa_tree t)
 
 void dan_bsp_begin_packing(dan_bsp* b)
 {
+    allocate(b->tree);
     begin_packing(b->tree);
 }
 
