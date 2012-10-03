@@ -7,6 +7,8 @@ enum { sending, receiving };
 
 void dan_bsp_init(dan_bsp* b, int tag, int ibarrier_tag)
 {
+    dan_bsp temp = DAN_BSP_INIT;
+    *b = temp;
     if (tag == ibarrier_tag)
     {
         fprintf(stderr,"dan_bsp_use_ibarrier: the ibarrier tag must be different from the bsp tag\n");

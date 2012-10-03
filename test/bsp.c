@@ -5,7 +5,7 @@
 int main(int argc, char** argv)
 {
     MPI_Init(&argc,&argv);
-    dan_bsp bsp = DAN_BSP_INIT;
+    dan_bsp bsp;
     dan_bsp_init(&bsp,0,1);
     dan_bsp_begin_superstep(&bsp);
     int rank = dan_mpi_rank();
