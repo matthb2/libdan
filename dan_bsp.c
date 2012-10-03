@@ -10,18 +10,18 @@ void dan_bsp_init(dan_bsp* b, int tag, int ibarrier_tag)
     if (tag == ibarrier_tag)
     {
         fprintf(stderr,"dan_bsp_use_ibarrier: the ibarrier tag must be different from the bsp tag\n");
-        exit(0);
+        exit(EXIT_FAILURE);
     }
     b->tag = tag;
     b->ibarrier.tag = ibarrier_tag;
 }
 
-static void free_all_takers(dan_aa_tree* t)
+static void free_all_receivers(dan_aa_tree* t)
 {
     if (*t == &dan_aa_bottom)
         return;
-    free_all_takers(&((*t)->left));
-    free_all_takers(&((*t)->right));
+    free_all_receivers(&((*t)->left));
+    free_all_receivers(&((*t)->right));
     dan_bsp_receiver* receiver;
     receiver = (dan_bsp_receiver*) *t;
     dan_mpi_free(&(receiver->message));
@@ -31,12 +31,7 @@ static void free_all_takers(dan_aa_tree* t)
 
 void dan_bsp_begin_superstep(dan_bsp* b)
 {
-    /* ensures no one starts a new superstep while others are receiving
-       in the past superstep */
-    if (b->state == dan_bsp_receiving)
-        while (!dan_mpi_ibarrier_done(&(b->ibarrier)));
-    free_all_takers(&(b->tree));
-    b->state = sending;
+    dan_bsp_free(b);
 }
 
 static bool receiver_less(dan_aa_node* a, dan_aa_node* b)
@@ -56,9 +51,12 @@ void dan_bsp_reserve(dan_bsp* b, int peer, size_t bytes)
 {
     dan_bsp_receiver* receiver;
     receiver = find_receiver(b->tree,peer);
+    dan_bsp_receiver temp = DAN_BSP_RECEIVER_INIT;
     if (!receiver)
     {
-        receiver = malloc(sizeof(*receiver));
+        receiver = dan_malloc(sizeof(*receiver));
+        *receiver = temp;
+        receiver->message.peer = peer;
         dan_aa_insert((dan_aa_node*)receiver,&(b->tree),receiver_less);
     }
     receiver->message.buffer.size += bytes;
@@ -70,7 +68,9 @@ static void allocate(dan_aa_tree t)
         return;
     allocate(t->left);
     dan_buffer* buffer = &(((dan_bsp_receiver*)t)->message.buffer);
-    dan_buffer_realloc(buffer,buffer->size);
+    size_t size = buffer->size;
+    buffer->size = 0;
+    dan_buffer_realloc(buffer,size);
     allocate(t->right);
 }
 
@@ -100,7 +100,7 @@ void* dan_bsp_pack(dan_bsp* b, int peer, size_t bytes)
     if (!receiver)
     {
         fprintf(stderr,"dan_bsp_pack: there is no receiver for this peer id. use dan_bsp_reserve to allocate a receiver with enough space first.\n");
-        exit(0);
+        exit(EXIT_FAILURE);
     }
     void* at = receiver->message.buffer.data;
     at = dan_pointer_add(at,receiver->message.buffer.size);
@@ -150,5 +150,16 @@ bool dan_bsp_receive(dan_bsp* b)
             return false;
     }
     return true;
+}
+
+void dan_bsp_free(dan_bsp* b)
+{
+    /* ensures no one starts a new superstep while others are receiving
+       in the past superstep */
+    if (b->state == dan_bsp_receiving)
+        while (!dan_mpi_ibarrier_done(&(b->ibarrier)));
+    free_all_receivers(&(b->tree));
+    dan_mpi_free(&(b->received));
+    b->state = sending;
 }
 

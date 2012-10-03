@@ -26,7 +26,7 @@ typedef struct
     dan_mpi_message message;
 } dan_bsp_receiver;
 
-#define DAN_BSP_TAKER_INIT \
+#define DAN_BSP_RECEIVER_INIT \
 { .message = DAN_MPI_MESSAGE_INIT }
 
 typedef struct
@@ -50,5 +50,6 @@ void dan_bsp_begin_packing(dan_bsp* b);
 void* dan_bsp_pack(dan_bsp* b, int peer, size_t bytes);
 void dan_bsp_send(dan_bsp* b);
 bool dan_bsp_receive(dan_bsp* b);
+void dan_bsp_free(dan_bsp* b);
 
 #endif
