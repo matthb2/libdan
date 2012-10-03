@@ -1,3 +1,30 @@
 libdan
 author: Dan Ibanez
 license: Apache 2.0
+
+///////////// Description /////////////////
+
+libdan is a library containing a collection of code for
+High Performance Computing. The current components include:
+    1. Structures: common CS data structures, most notably intrusive
+                   linked lists and AA trees.
+    2. Geometry: the beginnings of a 2D and 3D geometric kernel
+    2. Messaging: wrappers around MPI, including an implementation
+                  of the Bulk Synchronous Parallel model
+
+///////////// Installation /////////////////
+
+libdan uses CMake as its build system. So far our philosophy is
+not to assume anything about the user's environment, so some
+configuration is necessary. The compile process is as follows:
+
+ccmake .
+make install
+
+libdan is written in C99 standard C, so most C compilers will
+require the -std=c99 flag. libdan will emit a somewhat helpful
+compile error if this is missing.
+In addition, Messaging users will want to set
+the compilers to their MPI wrappers.
+We currently do not check whether the compiler is an MPI
+wrapper.
