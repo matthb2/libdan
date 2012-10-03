@@ -136,6 +136,7 @@ static bool done_sending(dan_aa_tree t)
 
 bool dan_bsp_receive(dan_bsp* b)
 {
+    b->received.peer = MPI_ANY_SOURCE;
     while (!dan_mpi_receive(&(b->received),b->tag))
     {
         if (b->state == dan_bsp_sending)

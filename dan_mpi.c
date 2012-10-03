@@ -87,6 +87,7 @@ bool dan_mpi_receive(dan_mpi_message* m, int tag)
     }
     if (!flag)
         return false;
+    m->peer = status.MPI_SOURCE;
     int count;
     result = MPI_Get_count(&status,MPI_BYTE,&count);
     if (result != MPI_SUCCESS)
