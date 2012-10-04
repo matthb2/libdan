@@ -45,6 +45,7 @@ typedef struct
 void dan_bsp_init(dan_bsp* b, int tag, int ibarrier_tag);
 void dan_bsp_begin_superstep(dan_bsp* b);
 void dan_bsp_reserve(dan_bsp* b, int peer, size_t bytes);
+size_t dan_bsp_reserved(dan_bsp* b, int peer);
 void dan_bsp_begin_packing(dan_bsp* b);
 void* dan_bsp_pack(dan_bsp* b, int peer, size_t bytes);
 void dan_bsp_send(dan_bsp* b);

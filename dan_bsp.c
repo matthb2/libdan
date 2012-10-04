@@ -53,15 +53,27 @@ void dan_bsp_reserve(dan_bsp* b, int peer, size_t bytes)
 {
     dan_bsp_receiver* receiver;
     receiver = find_receiver(b->tree,peer);
-    dan_bsp_receiver temp = DAN_BSP_RECEIVER_INIT;
     if (!receiver)
     {
         receiver = dan_malloc(sizeof(*receiver));
+        dan_bsp_receiver temp = DAN_BSP_RECEIVER_INIT;
         *receiver = temp;
         receiver->message.peer = peer;
         dan_aa_insert((dan_aa_node*)receiver,&(b->tree),receiver_less);
     }
     receiver->message.buffer.size += bytes;
+}
+
+size_t dan_bsp_reserved(dan_bsp* b, int peer)
+{
+    dan_bsp_receiver* receiver;
+    receiver = find_receiver(b->tree,peer);
+    if (!receiver)
+    {
+        fprintf(stderr,"dan_bsp_reserved: there is no receiver for this peer id. use dan_bsp_reserve to allocate a receiver with enough space first.\n");
+        exit(EXIT_FAILURE);
+    }
+    return receiver->message.buffer.size;
 }
 
 static void allocate(dan_aa_tree t)
