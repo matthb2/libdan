@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <assert.h>
 #include "../dan_bsp.h"
 
 int main(int argc, char** argv)
@@ -13,6 +14,7 @@ int main(int argc, char** argv)
     int message = 42;
     int peer = (rank+1)%size;
     dan_bsp_reserve(&bsp,peer,sizeof(message));
+    assert(sizeof(message)==dan_bsp_reserved(&bsp,peer));
     dan_bsp_begin_packing(&bsp);
     int* packed = dan_bsp_pack(&bsp,peer,sizeof(message));
     *packed = message;
@@ -28,6 +30,7 @@ int main(int argc, char** argv)
     message = 128;
     peer = (rank+(size-1))%size;
     dan_bsp_reserve(&bsp,peer,sizeof(message));
+    assert(sizeof(message)==dan_bsp_reserved(&bsp,peer));
     dan_bsp_begin_packing(&bsp);
     packed = dan_bsp_pack(&bsp,peer,sizeof(message));
     *packed = message;
