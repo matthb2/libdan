@@ -5,8 +5,15 @@ option(BUILD_MESSAGING "build the messaging system" ON)
 set(DAN_SOURCES dan_check.c dan_memory.c)
 install(FILES dan_memory.h DESTINATION include)
 if (BUILD_STRUCTURES)
-    set(DAN_SOURCES ${DAN_SOURCES} dan_aa.c dan_list.c)
-    install(FILES dan_aa.h dan_list.h DESTINATION include)
+    set(DAN_SOURCES ${DAN_SOURCES}
+        dan_aa.c
+        dan_list.c
+        dan_set.c)
+    install(FILES
+            dan_aa.h
+            dan_list.h
+            dan_set.h
+            DESTINATION include)
     add_executable(aa test/aa.c)
     target_link_libraries(aa dan)
 endif (BUILD_STRUCTURES)
