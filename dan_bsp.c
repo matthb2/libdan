@@ -40,7 +40,7 @@ static bool receiver_less(dan_aa_node* a, dan_aa_node* b)
          < ((dan_bsp_receiver*)b)->message.peer;
 }
 
-static dan_bsp_receiver* find_receiver(dan_aa_tree t, int peer)
+dan_bsp_receiver* dan_bsp_find_receiver(dan_aa_tree t, int peer)
 {
     dan_bsp_receiver key;
     key.message.peer = peer;
@@ -50,7 +50,7 @@ static dan_bsp_receiver* find_receiver(dan_aa_tree t, int peer)
 void dan_bsp_reserve(dan_bsp* b, int peer, size_t bytes)
 {
     dan_bsp_receiver* receiver;
-    receiver = find_receiver(b->tree,peer);
+    receiver = dan_bsp_find_receiver(b->tree,peer);
     if (!receiver)
     {
         receiver = dan_malloc(sizeof(*receiver));
@@ -65,7 +65,7 @@ void dan_bsp_reserve(dan_bsp* b, int peer, size_t bytes)
 size_t dan_bsp_reserved(dan_bsp* b, int peer)
 {
     dan_bsp_receiver* receiver;
-    receiver = find_receiver(b->tree,peer);
+    receiver = dan_bsp_find_receiver(b->tree,peer);
     if (!receiver)
     {
         fprintf(stderr,"dan_bsp_reserved: there is no receiver for this peer id. use dan_bsp_reserve to allocate a receiver with enough space first.\n");
@@ -104,7 +104,7 @@ void dan_bsp_begin_packing(dan_bsp* b)
 void* dan_bsp_pack(dan_bsp* b, int peer, size_t bytes)
 {
     dan_bsp_receiver* receiver;
-    receiver = find_receiver(b->tree,peer);
+    receiver = dan_bsp_find_receiver(b->tree,peer);
     if (!receiver)
     {
         fprintf(stderr,"dan_bsp_pack: there is no receiver for this peer id. use dan_bsp_reserve to allocate a receiver with enough space first.\n");

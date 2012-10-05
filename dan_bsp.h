@@ -52,4 +52,7 @@ void dan_bsp_send(dan_bsp* b);
 bool dan_bsp_receive(dan_bsp* b);
 void dan_bsp_free(dan_bsp* b);
 
+//internal access
+dan_bsp_receiver* dan_bsp_find_receiver(dan_aa_tree t, int peer);
+
 #endif //DAN_BSP_H
