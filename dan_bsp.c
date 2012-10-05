@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include "dan_bsp.h"
 
-enum { sending, receiving };
-
 void dan_bsp_init(dan_bsp* b, int tag, int ibarrier_tag)
 {
     dan_bsp temp = DAN_BSP_INIT;
@@ -171,6 +169,6 @@ void dan_bsp_free(dan_bsp* b)
         while (!dan_mpi_ibarrier_done(&(b->ibarrier)));
     free_all_receivers(&(b->tree));
     dan_mpi_free(&(b->received));
-    b->state = sending;
+    b->state = dan_bsp_sending;
 }
 
