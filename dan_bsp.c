@@ -62,6 +62,11 @@ void dan_bsp_reserve(dan_bsp* b, int peer, size_t bytes)
     receiver->message.buffer.size += bytes;
 }
 
+bool dan_bsp_has_receiver(dan_bsp* b, int peer)
+{
+    return dan_bsp_find_receiver(b->tree,peer);
+}
+
 size_t dan_bsp_reserved(dan_bsp* b, int peer)
 {
     dan_bsp_receiver* receiver;
