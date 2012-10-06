@@ -161,7 +161,10 @@ bool dan_bsp_receive(dan_bsp* b)
             }
         }
         else if (dan_mpi_ibarrier_done(&(b->ibarrier)))
+        {
+            dan_mpi_begin_ibarrier(&(b->ibarrier),b->ibarrier.tag);
             return false;
+        }
     }
     return true;
 }

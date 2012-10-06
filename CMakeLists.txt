@@ -16,6 +16,8 @@ if (BUILD_STRUCTURES)
             DESTINATION include)
     add_executable(aa test/aa.c)
     target_link_libraries(aa dan)
+    add_executable(set test/set.c)
+    target_link_libraries(set dan)
 endif (BUILD_STRUCTURES)
 if (BUILD_GEOMETRY)
     set(DAN_SOURCES ${DAN_SOURCES}

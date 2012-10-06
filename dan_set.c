@@ -94,7 +94,7 @@ bool dan_set_has(dan_set* s, void* object)
     return false;
 }
 
-void dan_free_set(dan_set* s)
+void dan_set_free(dan_set* s)
 {
     dan_free(s);
 }
