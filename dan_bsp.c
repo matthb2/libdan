@@ -59,7 +59,7 @@ void dan_bsp_reserve(dan_bsp* b, int peer, size_t bytes)
         receiver->message.peer = peer;
         dan_aa_insert((dan_aa_node*)receiver,&(b->tree),receiver_less);
     }
-    receiver->message.buffer.size += bytes;
+    dan_mpi_reserve(&(receiver->message),bytes);
 }
 
 bool dan_bsp_has_receiver(dan_bsp* b, int peer)
@@ -76,19 +76,7 @@ size_t dan_bsp_reserved(dan_bsp* b, int peer)
         fprintf(stderr,"dan_bsp_reserved: there is no receiver for this peer id. use dan_bsp_reserve to allocate a receiver with enough space first.\n");
         exit(EXIT_FAILURE);
     }
-    return receiver->message.buffer.size;
-}
-
-static void allocate(dan_aa_tree t)
-{
-    if (t == &dan_aa_bottom)
-        return;
-    allocate(t->left);
-    dan_buffer* buffer = &(((dan_bsp_receiver*)t)->message.buffer);
-    size_t size = buffer->size;
-    buffer->size = 0;
-    dan_buffer_realloc(buffer,size);
-    allocate(t->right);
+    return dan_mpi_reserved(&(receiver->message));
 }
 
 static void begin_packing(dan_aa_tree t)
@@ -96,13 +84,14 @@ static void begin_packing(dan_aa_tree t)
     if (t == &dan_aa_bottom)
         return;
     begin_packing(t->left);
-    ((dan_bsp_receiver*)t)->message.buffer.size = 0;
+    dan_bsp_receiver* receiver;
+    receiver = (dan_bsp_receiver*) t;
+    dan_mpi_begin_packing(&(receiver->message));
     begin_packing(t->right);
 }
 
 void dan_bsp_begin_packing(dan_bsp* b)
 {
-    allocate(b->tree);
     begin_packing(b->tree);
 }
 
@@ -115,10 +104,7 @@ void* dan_bsp_pack(dan_bsp* b, int peer, size_t bytes)
         fprintf(stderr,"dan_bsp_pack: there is no receiver for this peer id. use dan_bsp_reserve to allocate a receiver with enough space first.\n");
         exit(EXIT_FAILURE);
     }
-    void* at = receiver->message.buffer.data;
-    at = dan_pointer_add(at,receiver->message.buffer.size);
-    receiver->message.buffer.size += bytes;
-    return at;
+    return dan_mpi_pack(&(receiver->message),bytes);
 }
 
 static void send(dan_aa_tree t, int tag)

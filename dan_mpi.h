@@ -47,8 +47,10 @@ void dan_mpi_send(dan_mpi_message* m, int tag);
 bool dan_mpi_done(dan_mpi_message* m);
 bool dan_mpi_receive(dan_mpi_message* m, int tag);
 
-/* returns global_tag++ */
-int dan_mpi_unique_tag(void);
+void dan_mpi_reserve(dan_mpi_message* m, size_t bytes);
+size_t dan_mpi_reserved(dan_mpi_message* m);
+void dan_mpi_begin_packing(dan_mpi_message* m);
+void* dan_mpi_pack(dan_mpi_message* m, size_t bytes);
 
 void dan_mpi_begin_ibarrier(dan_mpi_ibarrier* i, int tag);
 bool dan_mpi_ibarrier_done(dan_mpi_ibarrier* i);

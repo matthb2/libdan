@@ -112,10 +112,29 @@ bool dan_mpi_receive(dan_mpi_message* m, int tag)
     return true;
 }
 
-int dan_mpi_unique_tag(void)
+void dan_mpi_reserve(dan_mpi_message* m, size_t bytes)
 {
-    static int global_tag = 0;
-    return global_tag++;
+    m->buffer.size += bytes;
+}
+
+size_t dan_mpi_reserved(dan_mpi_message* m)
+{
+    return m->buffer.size;
+}
+
+void dan_mpi_begin_packing(dan_mpi_message* m)
+{
+    size_t size = m->buffer.size;
+    m->buffer.size = 0;
+    dan_buffer_realloc(&(m->buffer),size);
+    m->buffer.size = 0;
+}
+
+void* dan_mpi_pack(dan_mpi_message* m, size_t bytes)
+{
+    void* at = dan_pointer_add(m->buffer.data,m->buffer.size);
+    m->buffer.size += bytes;
+    return at;
 }
 
 static bool ibarrier_sending(dan_mpi_ibarrier* i)
