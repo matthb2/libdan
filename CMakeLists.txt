@@ -37,10 +37,12 @@ endif (BUILD_GEOMETRY)
 if (BUILD_MESSAGING)
     set(DAN_SOURCES ${DAN_SOURCES}
         dan_mpi.c
-        dan_bsp.c)
+        dan_bsp.c
+        dan_neighbor.c)
     install(FILES
             dan_mpi.h
             dan_bsp.h
+            dan_neighbor.h
             DESTINATION include)
     add_executable(ibarrier test/mpi_ibarrier.c)
     target_link_libraries(ibarrier dan)
