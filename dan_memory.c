@@ -18,18 +18,10 @@
 #include <stdlib.h>
 #include "dan_memory.h"
 
-void dan_buffer_realloc(dan_buffer* b, size_t size)
-{
-    if (b->size == size)
-    {
-        return;
-    }
-    b->data = dan_realloc(b->data,size);
-    b->size = size;
-}
-
 void* dan_malloc(size_t size)
 {
+    if (!size)
+        return 0;
     void* p = malloc(size);
     if (p == NULL)
     {
@@ -65,5 +57,51 @@ void dan_free(void* p)
 void* dan_pointer_add(void* p, ptrdiff_t bytes)
 {
     return ((char*)p)+bytes;
+}
+
+void dan_move_pointer(void** p, ptrdiff_t bytes)
+{
+    *p = dan_pointer_add(*p,bytes);
+}
+
+void dan_reserve_buffer(dan_buffer* b, size_t size)
+{
+    b->size += size;
+}
+
+void dan_allocate_buffer(dan_buffer* b)
+{
+    b->data = dan_realloc(b->data,b->size);
+}
+
+void* dan_buffer_start(dan_buffer* b)
+{
+    return b->data;
+}
+
+void* dan_buffer_end(dan_buffer* b)
+{
+    return b->data + b->size;
+}
+
+void dan_free_buffer(dan_buffer* b)
+{
+    b->size = 0;
+    dan_allocate_buffer(b);
+}
+
+void dan_buffer_realloc(dan_buffer* b, size_t size)
+{
+    if (b->size == size)
+    {
+        return;
+    }
+    b->data = dan_realloc(b->data,size);
+    b->size = size;
+}
+
+void dan_reserve_array(dan_array* a, size_t count, size_t element_size)
+{
+    dan_reserve_buffer(a,count*element_size);
 }
 
