@@ -17,8 +17,17 @@
 #ifndef DAN_NATURAL_H
 #define DAN_NATURAL_H
 
+#ifdef __cplusplus
+#include <cstddef>
+extern "C" {
+#else
 #include <stddef.h>
+#endif
 
 typedef size_t dan_natural;
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
 
 #endif

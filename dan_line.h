@@ -20,6 +20,10 @@
 #include "dan_point.h"
 #include "dan_vector.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct
 {
     dan_scalar  radius;
@@ -35,5 +39,9 @@ typedef struct
 void dan_2line_from_2points(const dan_2point p1, const dan_2point p2, dan_2line* r);
 void dan_equidistant_2line(const dan_2point p1, const dan_2point p2, dan_2line* r);
 void dan_2line_intersection(const dan_2line* l1, const dan_2line* l2, dan_2point r);
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
 
 #endif

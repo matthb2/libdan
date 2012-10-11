@@ -17,8 +17,13 @@
 #ifndef DAN_SET_H
 #define DAN_SET_H
 
+#ifdef __cplusplus
+#include <cstddef>
+extern "C" {
+#else
 #include <stddef.h>
 #include <stdbool.h>
+#endif
 
 typedef struct
 {
@@ -33,5 +38,9 @@ dan_set* dan_set_difference(dan_set* a, dan_set* b);
 dan_set* dan_set_sum(dan_set* a, dan_set* b);
 bool dan_set_has(dan_set* s, void* object);
 void dan_set_free(dan_set* s);
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
 
 #endif

@@ -20,6 +20,10 @@
 #include "dan_mpi.h"
 #include "dan_aa.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct
 {
     dan_aa_node node;
@@ -55,5 +59,9 @@ void dan_bsp_free(dan_bsp* b);
 
 //internal access
 dan_bsp_receiver* dan_bsp_find_receiver(dan_aa_tree t, int peer);
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
 
 #endif //DAN_BSP_H

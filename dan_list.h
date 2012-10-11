@@ -17,6 +17,10 @@
 #ifndef DAN_LIST_H
 #define DAN_LIST_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct dan_list_node_struct
 {
     struct dan_list_node_struct* next;
@@ -65,5 +69,9 @@ void dan_list3_init(dan_list3* list);
 dan_list3_node* dan_first_list3_node(dan_list3* list);
 dan_list3_node* dan_list3_end(dan_list3* list);
 dan_list3_node* dan_next_list3_node(dan_list3_node* node);
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
 
 #endif

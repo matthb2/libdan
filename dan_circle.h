@@ -19,6 +19,10 @@
 
 #include "dan_point.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct
 {
     dan_scalar radius;
@@ -26,5 +30,9 @@ typedef struct
 } dan_2circle;
 
 void dan_2circle_from_points(dan_2point points[3], dan_2circle* r);
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
 
 #endif

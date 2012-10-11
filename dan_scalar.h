@@ -20,6 +20,14 @@
 #define DAN_SCALAR_ZERO 0.0L
 #define DAN_SCALAR_ONE  1.0L
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef double dan_scalar;
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

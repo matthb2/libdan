@@ -17,9 +17,13 @@
 #ifndef DAN_MPI_H
 #define DAN_MPI_H
 
-#include <stdbool.h>
-#include <mpi.h>
 #include "dan_memory.h"
+#include <mpi.h>
+#ifdef __cplusplus
+extern "C" {
+#else
+#include <stdbool.h>
+#endif
 
 typedef struct
 {
@@ -56,5 +60,9 @@ void dan_mpi_begin_ibarrier(dan_mpi_ibarrier* i, int tag);
 bool dan_mpi_ibarrier_done(dan_mpi_ibarrier* i);
 
 void dan_mpi_free(dan_mpi_message* m);
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
 
 #endif

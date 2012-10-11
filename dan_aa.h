@@ -17,7 +17,11 @@
 #ifndef DAN_AA_H
 #define DAN_AA_H
 
+#ifdef __cplusplus
+extern "C" {
+#else
 #include <stdbool.h>
+#endif
 
 typedef struct dan_aa_node_struct* dan_aa_tree;
 
@@ -40,5 +44,9 @@ typedef bool (*dan_aa_less)(dan_aa_node* a, dan_aa_node* b);
 dan_aa_node* dan_aa_insert(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less);
 dan_aa_node* dan_aa_remove(dan_aa_node* x, dan_aa_tree* t, dan_aa_less less);
 dan_aa_node* dan_aa_find(dan_aa_node* x, dan_aa_tree t, dan_aa_less less);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

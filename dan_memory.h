@@ -17,7 +17,12 @@
 #ifndef DAN_MEMORY_H
 #define DAN_MEMORY_H
 
+#ifdef __cplusplus
+#include <cstddef>
+extern "C" {
+#else
 #include <stddef.h>
+#endif
 
 void* dan_malloc(size_t size);
 void* dan_realloc(void* p, size_t size);
@@ -52,5 +57,9 @@ void dan_reserve_array(dan_array* a, size_t count, size_t element_size);
 #define DAN_RESERVE_ARRAY(a,count,type) dan_reserve_array(a,count,sizeof(type))
 #define DAN_ARRAY_START(a,type) ((type*)dan_buffer_start(a))
 #define DAN_ARRAY_END(a,type) ((type*)dan_buffer_end(a))
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
 
 #endif

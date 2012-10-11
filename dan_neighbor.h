@@ -19,6 +19,10 @@
 
 #include "dan_mpi.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct
 {
     dan_mpi_message message;
@@ -49,5 +53,9 @@ bool dan_neighbor_receive(dan_neighbors* n);
 void dan_free_neighbors(dan_neighbors* n);
 
 dan_neighbor* dan_find_neighbor(dan_neighbors* n, int peer);
+
+#ifdef __cplusplus
+} //extern "C"
+#endif
 
 #endif
