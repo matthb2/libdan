@@ -24,8 +24,8 @@
 extern "C" {
 #endif
 
-#define DAN_PMSG_USER_TAG 0
-#define DAN_PMSG_SYNC_TAG 1
+#define DAN_PMSG_TAG 0
+#define DAN_PMSG_IBARRIER_TAG 1
 
 typedef struct
 {
@@ -34,32 +34,37 @@ typedef struct
     bool received_from;
 } dan_pmsg_peer;
 
-#define DAN_PMSG_RECEIVER_INIT \
+#define DAN_PMSG_PEER_INIT \
 { .message = DAN_MPI_MESSAGE_INIT, .received_from = false }
+
+typedef enum { dan_pmsg_global, dan_pmsg_local } dan_pmsg_method;
 
 typedef struct
 {
     dan_aa_tree peers;
     dan_mpi_message received;
     dan_mpi_ibarrier ibarrier;
-    enum { dan_pmsg_sending, dan_pmsg_receiving } state;
-    enum { dan_pmsg_global, dan_pmsg_local } method;
+    int state;
+    dan_pmsg_method method;
 } dan_pmsg;
 
 #define DAN_PMSG_INIT \
-{ .tag = 0, .peers = DAN_AA_TREE_INIT, .received = DAN_MPI_MESSAGE_INIT, \
-  .ibarrier = DAN_MPI_IBARRIER_INIT, .state = dan_pmsg_sending }
+{ .peers = DAN_AA_TREE_INIT, .received = DAN_MPI_MESSAGE_INIT, \
+  .ibarrier = DAN_MPI_IBARRIER_INIT, .state = 0, .method = dan_pmsg_global }
 
-void dan_pmsg_init(dan_pmsg* b);
-void dan_pmsg_start(dan_pmsg* b);
-void dan_pmsg_reserve(dan_pmsg* b, int peer, size_t bytes);
-bool dan_pmsg_has_peer(dan_pmsg* b, int peer);
-size_t dan_pmsg_reserved(dan_pmsg* b, int peer);
-void dan_pmsg_allocate(dan_pmsg* b);
-void* dan_pmsg_pack(dan_pmsg* b, int peer, size_t bytes);
-void dan_pmsg_send(dan_pmsg* b);
-bool dan_pmsg_receive(dan_pmsg* b);
-void dan_pmsg_free(dan_pmsg* b);
+void dan_pmsg_init(dan_pmsg* m);
+void dan_pmsg_start(dan_pmsg* m, dan_pmsg_method method);
+void dan_pmsg_reserve(dan_pmsg* m, int id, size_t bytes);
+#define DAN_PMSG_RESERVE(m,peer,object) dan_pmsg_reserve(m,peer,sizeof(object))
+bool dan_pmsg_has_peer(dan_pmsg* m, int id);
+size_t dan_pmsg_reserved(dan_pmsg* m, int id);
+void dan_pmsg_begin_packing(dan_pmsg* m);
+void* dan_pmsg_pack(dan_pmsg* m, int id, size_t bytes);
+#define DAN_PMSG_PACK(m,peer,object,type)\
+(*((type*)dan_pmsg_pack(m,peer,sizeof(object)))=object)
+void dan_pmsg_send(dan_pmsg* m);
+bool dan_pmsg_receive(dan_pmsg* m);
+void dan_pmsg_free(dan_pmsg* m);
 
 #ifdef __cplusplus
 } //extern "C"

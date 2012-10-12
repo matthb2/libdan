@@ -38,16 +38,20 @@ if (BUILD_MESSAGING)
     set(DAN_SOURCES ${DAN_SOURCES}
         dan_mpi.c
         dan_bsp.c
+        dan_pmsg.c
         dan_neighbor.c)
     install(FILES
             dan_mpi.h
             dan_bsp.h
+            dan_pmsg.h
             dan_neighbor.h
             DESTINATION include)
     add_executable(ibarrier test/mpi_ibarrier.c)
     target_link_libraries(ibarrier dan)
     add_executable(bsp test/bsp.c)
     target_link_libraries(bsp dan)
+    add_executable(pmsg test/pmsg.c)
+    target_link_libraries(pmsg dan)
 endif (BUILD_MESSAGING)
 add_library(dan ${DAN_SOURCES})
 install(TARGETS dan LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
