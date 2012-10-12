@@ -14,19 +14,14 @@
     limitations under the License.
 */
 
-#include <stdlib.h>
-#include <stdio.h>
+#include "dan.h"
 #include "dan_bsp.h"
 
 void dan_bsp_init(dan_bsp* b, int tag, int ibarrier_tag)
 {
     dan_bsp temp = DAN_BSP_INIT;
     *b = temp;
-    if (tag == ibarrier_tag)
-    {
-        fprintf(stderr,"dan_bsp_use_ibarrier: the ibarrier tag must be different from the bsp tag\n");
-        exit(EXIT_FAILURE);
-    }
+    DAN_FAIL_IF(tag == ibarrier_tag,"the ibarrier tag must be different from the bsp tag")
     b->tag = tag;
     b->ibarrier.tag = ibarrier_tag;
 }
@@ -86,11 +81,7 @@ size_t dan_bsp_reserved(dan_bsp* b, int peer)
 {
     dan_bsp_receiver* receiver;
     receiver = dan_bsp_find_receiver(b->tree,peer);
-    if (!receiver)
-    {
-        fprintf(stderr,"dan_bsp_reserved: there is no receiver for this peer id. use dan_bsp_reserve to allocate a receiver with enough space first.\n");
-        exit(EXIT_FAILURE);
-    }
+    DAN_FAIL_IF(!receiver,"there is no receiver for this peer id. use dan_bsp_reserve to allocate a receiver with enough space first.")
     return dan_mpi_reserved(&(receiver->message));
 }
 
@@ -114,11 +105,7 @@ void* dan_bsp_pack(dan_bsp* b, int peer, size_t bytes)
 {
     dan_bsp_receiver* receiver;
     receiver = dan_bsp_find_receiver(b->tree,peer);
-    if (!receiver)
-    {
-        fprintf(stderr,"dan_bsp_pack: there is no receiver for this peer id. use dan_bsp_reserve to allocate a receiver with enough space first.\n");
-        exit(EXIT_FAILURE);
-    }
+    DAN_FAIL_IF(!receiver,"there is no receiver for this peer id. use dan_bsp_reserve to allocate a receiver with enough space first.")
     return dan_mpi_pack(&(receiver->message),bytes);
 }
 
