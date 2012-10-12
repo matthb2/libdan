@@ -3,7 +3,7 @@ option(BUILD_STRUCTURES "build common data structures" ON)
 option(BUILD_GEOMETRY "build the geometry system" ON)
 option(BUILD_MESSAGING "build the messaging system" ON)
 set(DAN_SOURCES dan.c dan_memory.c)
-install(FILES dan_memory.h DESTINATION include)
+install(FILES dan.h dan_memory.h DESTINATION include)
 if (BUILD_STRUCTURES)
     set(DAN_SOURCES ${DAN_SOURCES}
         dan_aa.c
