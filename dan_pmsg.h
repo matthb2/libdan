@@ -60,10 +60,15 @@ bool dan_pmsg_has_peer(dan_pmsg* m, int id);
 size_t dan_pmsg_reserved(dan_pmsg* m, int id);
 void dan_pmsg_begin_packing(dan_pmsg* m);
 void* dan_pmsg_pack(dan_pmsg* m, int id, size_t bytes);
+#define DAN_PMSG_PACK2(m,peer,type)\
+(*((type*)dan_pmsg_pack(m,peer,sizeof(type))))
 #define DAN_PMSG_PACK(m,peer,object,type)\
-(*((type*)dan_pmsg_pack(m,peer,sizeof(object)))=object)
+(DAN_PMSG_PACK2(m,peer,type)=object)
 void dan_pmsg_send(dan_pmsg* m);
 bool dan_pmsg_receive(dan_pmsg* m);
+void* dan_pmsg_received(dan_pmsg* m);
+int dan_pmsg_received_from(dan_pmsg* m);
+size_t dan_pmsg_received_size(dan_pmsg* m);
 void dan_pmsg_free(dan_pmsg* m);
 
 #ifdef __cplusplus

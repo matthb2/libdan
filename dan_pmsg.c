@@ -183,6 +183,21 @@ bool dan_pmsg_receive(dan_pmsg* b)
     return true;
 }
 
+void* dan_pmsg_received(dan_pmsg* m)
+{
+    return m->received.buffer.data;
+}
+
+int dan_pmsg_received_from(dan_pmsg* m)
+{
+    return m->received.peer;
+}
+
+size_t dan_pmsg_received_size(dan_pmsg* m)
+{
+    return m->received.buffer.size;
+}
+
 void dan_pmsg_free(dan_pmsg* b)
 {
     /* ensures no one starts a new superstep while others are receiving
