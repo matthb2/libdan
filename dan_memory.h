@@ -58,6 +58,19 @@ void dan_reserve_array(dan_array* a, size_t count, size_t element_size);
 #define DAN_ARRAY_START(a,type) ((type*)dan_buffer_start(a))
 #define DAN_ARRAY_END(a,type) ((type*)dan_buffer_end(a))
 
+typedef struct
+{
+    char* start;
+    size_t size;
+    size_t capacity;
+} dan_buffer2;
+#define DAN_BUFFER2_INIT { .start = 0, .size = 0, .capacity = 0 }
+
+void dan_free_buffer2(dan_buffer2* b);
+void* dan_push_buffer2(dan_buffer2* b, size_t size);
+void dan_begin_buffer2(dan_buffer2* b);
+void* dan_walk_buffer2(dan_buffer2* b, size_t size);
+
 #ifdef __cplusplus
 } //extern "C"
 #endif

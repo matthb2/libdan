@@ -105,3 +105,37 @@ void dan_reserve_array(dan_array* a, size_t count, size_t element_size)
     dan_reserve_buffer(a,count*element_size);
 }
 
+void dan_free_buffer2(dan_buffer2* b)
+{
+    dan_buffer2 temp = DAN_BUFFER2_INIT;
+    dan_free(b->start);
+    *b = temp;
+}
+
+#define INITIAL_CAPACITY 8
+
+void* dan_push_buffer2(dan_buffer2* b, size_t size)
+{
+    b->size += size;
+    if (b->size > b->capacity)
+    {
+        b->capacity *= 2;
+        if (!(b->capacity))
+            b->capacity = INITIAL_CAPACITY;
+        b->start = dan_realloc(b->start,b->capacity);
+    }
+    return b->start + b->size - size;
+}
+
+void dan_begin_buffer2(dan_buffer2* b)
+{
+    b->size = 0;
+}
+
+void* dan_walk_buffer2(dan_buffer2* b, size_t size)
+{
+    void* at = b->start + b->size;
+    b->size += size;
+    return at;
+}
+

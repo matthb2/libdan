@@ -61,6 +61,20 @@ bool dan_mpi_ibarrier_done(dan_mpi_ibarrier* i);
 
 void dan_mpi_free(dan_mpi_message* m);
 
+typedef struct
+{
+    dan_buffer2 buffer;
+    int peer;
+    MPI_Request request;
+} dan_message;
+#define DAN_MESSAGE_INIT \
+{ .buffer = DAN_BUFFER2_INIT, .peer = 0, .request = MPI_REQUEST_NULL }
+
+void dan_send(dan_message* m, int tag);
+bool dan_done(dan_message* m);
+void dan_receive(dan_message* m, int tag);
+void dan_free_message(dan_message* m);
+
 #ifdef __cplusplus
 } //extern "C"
 #endif

@@ -208,3 +208,7 @@ void dan_mpi_free(dan_mpi_message* m)
     dan_buffer_realloc(&(m->buffer),0);
 }
 
+void dan_send(dan_message* m, int tag)
+{
+}
+
