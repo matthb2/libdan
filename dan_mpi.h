@@ -72,7 +72,7 @@ typedef struct
 
 void dan_send(dan_message* m, int tag);
 bool dan_done(dan_message* m);
-void dan_receive(dan_message* m, int tag);
+bool dan_receive(dan_message* m, int tag);
 void dan_free_message(dan_message* m);
 
 #ifdef __cplusplus

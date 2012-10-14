@@ -70,6 +70,7 @@ void dan_free_buffer2(dan_buffer2* b);
 void* dan_push_buffer2(dan_buffer2* b, size_t size);
 void dan_begin_buffer2(dan_buffer2* b);
 void* dan_walk_buffer2(dan_buffer2* b, size_t size);
+void dan_resize_buffer2(dan_buffer2* b, size_t size);
 
 #ifdef __cplusplus
 } //extern "C"

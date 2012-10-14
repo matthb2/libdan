@@ -200,11 +200,38 @@ bool dan_done(dan_message* m)
     int flag;
     int result;
     result = MPI_Test(&(m->request),&flag,MPI_STATUS_IGNORE);
-    if (result != MPI_SUCCESS)
-    {
-        fprintf(stderr,"libdan failed using MPI_Test\n");
-        exit(EXIT_FAILURE);
-    }
+    DAN_FAIL_IF(result != MPI_SUCCESS,"MPI_Test failed")
     return flag;
+}
+
+bool dan_receive(dan_message* m, int tag)
+{
+    MPI_Status status;
+    int flag;
+    int result;
+    result = MPI_Iprobe(m->peer,tag,MPI_COMM_WORLD,&flag,&status);
+    DAN_FAIL_IF(result != MPI_SUCCESS,"MPI_Iprobe failed")
+    if (!flag)
+        return false;
+    m->peer = status.MPI_SOURCE;
+    int count;
+    result = MPI_Get_count(&status,MPI_BYTE,&count);
+    DAN_FAIL_IF(result != MPI_SUCCESS,"MPI_Get_count failed")
+    dan_resize_buffer2(&(m->buffer),count);
+    result = MPI_Recv(
+            m->buffer.start,
+            m->buffer.size,
+            MPI_BYTE,
+            m->peer,
+            tag,
+            MPI_COMM_WORLD,
+            MPI_STATUS_IGNORE);
+    DAN_FAIL_IF(result != MPI_SUCCESS,"MPI_Recv failed")
+    return true;
+}
+
+void dan_free_message(dan_message* m)
+{
+    dan_free_buffer2(&(m->buffer));
 }
 

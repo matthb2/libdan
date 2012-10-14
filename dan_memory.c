@@ -112,16 +112,15 @@ void dan_free_buffer2(dan_buffer2* b)
     *b = temp;
 }
 
-#define INITIAL_CAPACITY 8
-
 void* dan_push_buffer2(dan_buffer2* b, size_t size)
 {
     b->size += size;
     if (b->size > b->capacity)
     {
-        b->capacity *= 2;
         if (!(b->capacity))
-            b->capacity = INITIAL_CAPACITY;
+            b->capacity = 1;
+        while (b->size > b->capacity)
+            b->capacity *= 2;
         b->start = dan_realloc(b->start,b->capacity);
     }
     return b->start + b->size - size;
@@ -137,5 +136,12 @@ void* dan_walk_buffer2(dan_buffer2* b, size_t size)
     void* at = b->start + b->size;
     b->size += size;
     return at;
+}
+
+void dan_resize_buffer2(dan_buffer2* b, size_t size)
+{
+    b->size = size;
+    b->capacity = size;
+    b->start = dan_realloc(b->start,size);
 }
 

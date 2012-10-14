@@ -35,7 +35,7 @@ static void free_peers(dan_aa_tree* t)
     free_peers(&((*t)->right));
     dan_pmsg_peer* peer;
     peer = (dan_pmsg_peer*) *t;
-    dan_mpi_free(&(peer->message));
+    dan_free_message(&(peer->message));
     dan_free(peer);
     *t = &dan_aa_bottom;
 }
@@ -43,6 +43,7 @@ static void free_peers(dan_aa_tree* t)
 void dan_pmsg_start(dan_pmsg* b, dan_pmsg_method method)
 {
     dan_pmsg_free(b);
+    b->state = sending;
     b->method = method;
 }
 
@@ -59,56 +60,30 @@ static dan_pmsg_peer* find_peer(dan_aa_tree t, int id)
     return (dan_pmsg_peer*) dan_aa_find((dan_aa_node*)&key,t,peer_less);
 }
 
-void dan_pmsg_reserve(dan_pmsg* b, int id, size_t bytes)
+void* dan_pmsg_pack(dan_pmsg* m, int id, size_t size)
 {
-    dan_pmsg_peer* peer;
-    peer = find_peer(b->peers,id);
+    dan_pmsg_peer* peer = find_peer(m->peers,id);
     if (!peer)
     {
         peer = dan_malloc(sizeof(*peer));
         dan_pmsg_peer temp = DAN_PMSG_PEER_INIT;
         *peer = temp;
         peer->message.peer = id;
-        dan_aa_insert((dan_aa_node*)peer,&(b->peers),peer_less);
+        dan_aa_insert((dan_aa_node*)peer,&(m->peers),peer_less);
     }
-    dan_mpi_reserve(&(peer->message),bytes);
+    return dan_push_buffer2(&(peer->message.buffer),size);
 }
 
-bool dan_pmsg_has_peer(dan_pmsg* b, int id)
+bool dan_pmsg_has_peer(dan_pmsg* m, int id)
 {
-    return find_peer(b->peers,id);
+    return find_peer(m->peers,id);
 }
 
-size_t dan_pmsg_reserved(dan_pmsg* b, int id)
+size_t dan_pmsg_packed(dan_pmsg* m, int id)
 {
-    dan_pmsg_peer* peer;
-    peer = find_peer(b->peers,id);
-    DAN_FAIL_IF(!peer,"there is no peer for this peer id. use dan_pmsg_reserve to allocate a peer with enough space first.")
-    return dan_mpi_reserved(&(peer->message));
-}
-
-static void begin_packing_peers(dan_aa_tree t)
-{
-    if (t == &dan_aa_bottom)
-        return;
-    begin_packing_peers(t->left);
-    dan_pmsg_peer* peer;
-    peer = (dan_pmsg_peer*) t;
-    dan_mpi_begin_packing(&(peer->message));
-    begin_packing_peers(t->right);
-}
-
-void dan_pmsg_begin_packing(dan_pmsg* b)
-{
-    begin_packing_peers(b->peers);
-}
-
-void* dan_pmsg_pack(dan_pmsg* b, int id, size_t bytes)
-{
-    dan_pmsg_peer* peer;
-    peer = find_peer(b->peers,id);
-    DAN_FAIL_IF(!peer,"there is no peer for this peer id. use dan_pmsg_reserve to allocate a peer with enough space first.")
-    return dan_mpi_pack(&(peer->message),bytes);
+    dan_pmsg_peer* peer = find_peer(m->peers,id);
+    DAN_FAIL_IF(!peer,"there is no peer for this peer id. use dan_pmsg_pack to allocate a peer first.")
+    return peer->message.buffer.size;
 }
 
 static void send_peers(dan_aa_tree t)
@@ -118,13 +93,13 @@ static void send_peers(dan_aa_tree t)
     send_peers(t->left);
     dan_pmsg_peer* peer;
     peer = (dan_pmsg_peer*)t;
-    dan_mpi_send(&(peer->message),DAN_PMSG_TAG);
+    dan_send(&(peer->message),DAN_PMSG_TAG);
     send_peers(t->right);
 }
 
-void dan_pmsg_send(dan_pmsg* b)
+void dan_pmsg_send(dan_pmsg* m)
 {
-    send_peers(b->peers);
+    send_peers(m->peers);
 }
 
 static bool done_sending_peers(dan_aa_tree t)
@@ -133,7 +108,7 @@ static bool done_sending_peers(dan_aa_tree t)
         return true;
     dan_pmsg_peer* peer;
     peer = (dan_pmsg_peer*)t;
-    return dan_mpi_done(&(peer->message))
+    return dan_done(&(peer->message))
         && done_sending_peers(t->left) && done_sending_peers(t->right);
 }
 
@@ -147,45 +122,46 @@ static bool done_receiving_peers(dan_aa_tree t)
         && done_sending_peers(t->left) && done_sending_peers(t->right);
 }
 
-bool dan_pmsg_receive(dan_pmsg* b)
+bool dan_pmsg_receive(dan_pmsg* m)
 {
-    b->received.peer = MPI_ANY_SOURCE;
-    if (b->method == dan_pmsg_local)
+    if (m->method == dan_pmsg_local)
     {
-        if (done_sending_peers(b->peers)&&done_receiving_peers(b->peers))
+        if (done_sending_peers(m->peers)&&done_receiving_peers(m->peers))
             return false;
     }
-    while (!dan_mpi_receive(&(b->received),DAN_PMSG_TAG))
+    m->received.peer = MPI_ANY_SOURCE;
+    while (!dan_receive(&(m->received),DAN_PMSG_TAG))
     {
-        if (b->method == dan_pmsg_global)
+        if (m->method == dan_pmsg_global)
         {
-            if (b->state == sending)
+            if (m->state == sending)
             {
-                if (done_sending_peers(b->peers))
+                if (done_sending_peers(m->peers))
                 {
-                    dan_mpi_begin_ibarrier(&(b->ibarrier),b->ibarrier.tag);
-                    b->state = receiving;
+                    dan_mpi_begin_ibarrier(&(m->ibarrier),m->ibarrier.tag);
+                    m->state = receiving;
                 }
             }
-            else if (dan_mpi_ibarrier_done(&(b->ibarrier)))
+            else if (dan_mpi_ibarrier_done(&(m->ibarrier)))
             {
-                dan_mpi_begin_ibarrier(&(b->ibarrier),b->ibarrier.tag);
+                dan_mpi_begin_ibarrier(&(m->ibarrier),m->ibarrier.tag);
                 return false;
             }
         }
     }
-    if (b->method == dan_pmsg_local)
+    if (m->method == dan_pmsg_local)
     {
-        dan_pmsg_peer* peer = find_peer(b->peers,b->received.peer);
+        dan_pmsg_peer* peer = find_peer(m->peers,m->received.peer);
         DAN_FAIL_IF(!peer,"received from a peer not sent to using local method")
         peer->received_from = true;
     }
+    dan_begin_buffer2(&(m->received.buffer));
     return true;
 }
 
-void* dan_pmsg_received(dan_pmsg* m)
+void* dan_pmsg_unpack(dan_pmsg* m, size_t size)
 {
-    return m->received.buffer.data;
+    return dan_walk_buffer2(&(m->received.buffer),size);
 }
 
 int dan_pmsg_received_from(dan_pmsg* m)
@@ -205,7 +181,6 @@ void dan_pmsg_free(dan_pmsg* b)
     if ((b->method == dan_pmsg_global)&&(b->state == receiving))
         while (!dan_mpi_ibarrier_done(&(b->ibarrier)));
     free_peers(&(b->peers));
-    dan_mpi_free(&(b->received));
-    b->state = sending;
+    dan_free_message(&(b->received));
 }
 
