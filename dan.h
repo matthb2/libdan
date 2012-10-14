@@ -30,7 +30,7 @@ extern "C" {
 if (condition)\
 {\
     fprintf(stderr,"libdan: %s: "message"\n",__func__);\
-    exit(EXIT_FAILURE);\
+    abort();\
 }
 
 #ifdef __cplusplus
