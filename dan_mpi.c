@@ -199,5 +199,28 @@ void dan_mpi_free(dan_mpi_message* m)
 
 void dan_send(dan_message* m, int tag)
 {
+    int result;
+    result = MPI_Issend(
+            m->buffer.start,
+            m->buffer.size,
+            MPI_BYTE,
+            m->peer,
+            tag,
+            MPI_COMM_WORLD,
+            &(m->request));
+    DAN_FAIL_IF(result != MPI_SUCCESS,"MPI_Issend failed")
+}
+
+bool dan_done(dan_message* m)
+{
+    int flag;
+    int result;
+    result = MPI_Test(&(m->request),&flag,MPI_STATUS_IGNORE);
+    if (result != MPI_SUCCESS)
+    {
+        fprintf(stderr,"libdan failed using MPI_Test\n");
+        exit(EXIT_FAILURE);
+    }
+    return flag;
 }
 
