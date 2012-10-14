@@ -55,11 +55,7 @@ bool dan_mpi_done(dan_mpi_message* m)
     int flag;
     int result;
     result = MPI_Test(&(m->request),&flag,MPI_STATUS_IGNORE);
-    if (result != MPI_SUCCESS)
-    {
-        fprintf(stderr,"libdan failed using MPI_Test\n");
-        exit(EXIT_FAILURE);
-    }
+    DAN_FAIL_IF(result != MPI_SUCCESS,"MPI_Test failed")
     return flag;
 }
 
@@ -69,21 +65,13 @@ bool dan_mpi_receive(dan_mpi_message* m, int tag)
     int flag;
     int result;
     result = MPI_Iprobe(m->peer,tag,MPI_COMM_WORLD,&flag,&status);
-    if (result != MPI_SUCCESS)
-    {
-        fprintf(stderr,"libdan failed using MPI_Iprobe\n");
-        exit(EXIT_FAILURE);
-    }
+    DAN_FAIL_IF(result != MPI_SUCCESS,"MPI_Iprobe failed")
     if (!flag)
         return false;
     m->peer = status.MPI_SOURCE;
     int count;
     result = MPI_Get_count(&status,MPI_BYTE,&count);
-    if (result != MPI_SUCCESS)
-    {
-        fprintf(stderr,"libdan failed using MPI_Get_count\n");
-        exit(EXIT_FAILURE);
-    }
+    DAN_FAIL_IF(result != MPI_SUCCESS,"MPI_Get_count failed")
     dan_buffer_realloc(&(m->buffer),count);
     result = MPI_Recv(
             m->buffer.data,
@@ -93,11 +81,7 @@ bool dan_mpi_receive(dan_mpi_message* m, int tag)
             tag,
             MPI_COMM_WORLD,
             MPI_STATUS_IGNORE);
-    if (result != MPI_SUCCESS)
-    {
-        fprintf(stderr,"libdan failed using MPI_Recv\n");
-        exit(EXIT_FAILURE);
-    }
+    DAN_FAIL_IF(result != MPI_SUCCESS,"MPI_Recv failed")
     return true;
 }
 
