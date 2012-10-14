@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "dan.h"
 #include "dan_memory.h"
 
 void* dan_malloc(size_t size)
@@ -23,11 +24,7 @@ void* dan_malloc(size_t size)
     if (!size)
         return 0;
     void* p = malloc(size);
-    if (p == NULL)
-    {
-        fprintf(stderr,"libdan ran out of memory using malloc\n");
-        exit(EXIT_FAILURE);
-    }
+    DAN_FAIL_IF(p == NULL,"malloc ran out of memory")
     return p;
 }
 
@@ -36,21 +33,13 @@ void* dan_realloc(void* p, size_t size)
     if ((p==NULL)&&(size==0))
         return NULL;
     p = realloc(p,size);
-    if ((p==NULL)&&(size!=0))
-    {
-        fprintf(stderr,"libdan ran out of memory using realloc\n");
-        exit(EXIT_FAILURE);
-    }
+    DAN_FAIL_IF((p == NULL)&&(size),"realloc ran out of memory")
     return p;
 }
 
 void dan_free(void* p)
 {
-    if (p==NULL)
-    {
-        fprintf(stderr,"libdan is trying to free NULL\n");
-        exit(EXIT_FAILURE);
-    }
+    DAN_FAIL_IF(p == NULL,"freeing NULL")
     free(p);
 }
 
