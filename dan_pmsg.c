@@ -16,6 +16,7 @@
 
 #include "dan.h"
 #include "dan_pmsg.h"
+#include <unistd.h>
 
 enum { sending, receiving };
 
@@ -119,15 +120,18 @@ static bool done_receiving_peers(dan_aa_tree t)
     dan_pmsg_peer* peer;
     peer = (dan_pmsg_peer*)t;
     return peer->received_from
-        && done_sending_peers(t->left) && done_sending_peers(t->right);
+        && done_receiving_peers(t->left) && done_receiving_peers(t->right);
 }
 
 bool dan_pmsg_receive(dan_pmsg* m)
 {
     if (m->method == dan_pmsg_local)
     {
-        if (done_sending_peers(m->peers)&&done_receiving_peers(m->peers))
+        if (done_receiving_peers(m->peers))
+        {
+            while(!done_sending_peers(m->peers));
             return false;
+        }
     }
     m->received.peer = MPI_ANY_SOURCE;
     while (!dan_receive(&(m->received),DAN_PMSG_TAG))

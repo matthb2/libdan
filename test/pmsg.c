@@ -32,6 +32,19 @@ int main(int argc, char** argv)
         fprintf(stderr,"%d received %d from %d\n",
                 rank,*unpacked,dan_pmsg_received_from(&m));
     }
+    int peer2 = (rank+size-1)%size;
+    fprintf(stderr,"%d stage 3\n",rank);
+    message = 3;
+    dan_pmsg_start(&m,dan_pmsg_local);
+    DAN_PMSG_PACK(&m,peer,message,int);
+    DAN_PMSG_PACK(&m,peer2,message,int);
+    dan_pmsg_send(&m);
+    while (dan_pmsg_receive(&m))
+    {
+        int* unpacked = dan_pmsg_unpack(&m,sizeof(int));
+        fprintf(stderr,"%d received %d from %d\n",
+                rank,*unpacked,dan_pmsg_received_from(&m));
+    }
     dan_pmsg_free(&m);
     MPI_Finalize();
     return 0;
