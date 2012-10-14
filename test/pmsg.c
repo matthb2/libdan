@@ -21,6 +21,17 @@ int main(int argc, char** argv)
         fprintf(stderr,"%d received %d from %d\n",
                 rank,*unpacked,dan_pmsg_received_from(&m));
     }
+    message = 128;
+    fprintf(stderr,"%d stage 2\n",rank);
+    dan_pmsg_start(&m,dan_pmsg_global);
+    DAN_PMSG_PACK(&m,peer,message,int);
+    dan_pmsg_send(&m);
+    while (dan_pmsg_receive(&m))
+    {
+        int* unpacked = dan_pmsg_unpack(&m,sizeof(int));
+        fprintf(stderr,"%d received %d from %d\n",
+                rank,*unpacked,dan_pmsg_received_from(&m));
+    }
     dan_pmsg_free(&m);
     MPI_Finalize();
     return 0;

@@ -96,6 +96,8 @@ void dan_reserve_array(dan_array* a, size_t count, size_t element_size)
 
 void dan_free_buffer2(dan_buffer2* b)
 {
+    if (!(b->capacity))
+        return;
     dan_buffer2 temp = DAN_BUFFER2_INIT;
     dan_free(b->start);
     *b = temp;
