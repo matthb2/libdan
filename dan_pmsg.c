@@ -16,7 +16,6 @@
 
 #include "dan.h"
 #include "dan_pmsg.h"
-#include <unistd.h>
 
 enum { sending, receiving };
 
