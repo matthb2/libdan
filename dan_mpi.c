@@ -16,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "dan.h"
 #include "dan_mpi.h"
 #include "dan_memory.h"
 
@@ -23,11 +24,7 @@ int  dan_mpi_size(void)
 {
     int size;
     int result = MPI_Comm_size(MPI_COMM_WORLD,&size);
-    if (result != MPI_SUCCESS)
-    {
-        fprintf(stderr,"libdan failed using MPI_Comm_size\n");
-        exit(EXIT_SUCCESS);
-    }
+    DAN_FAIL_IF(result != MPI_SUCCESS,"MPI_Comm_size failed")
     return size;
 }
 
@@ -35,11 +32,7 @@ int  dan_mpi_rank(void)
 {
     int rank;
     int result = MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-    if (result != MPI_SUCCESS)
-    {
-        fprintf(stderr,"libdan failed using MPI_Comm_rank\n");
-        exit(EXIT_SUCCESS);
-    }
+    DAN_FAIL_IF(result != MPI_SUCCESS,"MPI_Comm_rank failed")
     return rank;
 }
 
@@ -54,11 +47,7 @@ void dan_mpi_send(dan_mpi_message* m, int tag)
             tag,
             MPI_COMM_WORLD,
             &(m->request));
-    if (result != MPI_SUCCESS)
-    {
-        fprintf(stderr,"libdan failed using MPI_Issend\n");
-        exit(EXIT_FAILURE);
-    }
+    DAN_FAIL_IF(result != MPI_SUCCESS,"MPI_Issend failed")
 }
 
 bool dan_mpi_done(dan_mpi_message* m)
