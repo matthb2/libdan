@@ -122,42 +122,59 @@ static bool done_receiving_peers(dan_aa_tree t)
         && done_receiving_peers(t->left) && done_receiving_peers(t->right);
 }
 
-bool dan_pmsg_receive(dan_pmsg* m)
+static bool receive_local_peer(dan_aa_tree t, dan_message* m)
 {
-    if (m->method == dan_pmsg_local)
+    if (t == &dan_aa_bottom)
+        return false;
+    dan_pmsg_peer* peer = (dan_pmsg_peer*)t;
+    m->peer = peer->message.peer;
+    return dan_receive(m,DAN_PMSG_TAG) ||
+        receive_local_peer(t->left,m)  ||
+        receive_local_peer(t->right,m);
+}
+
+static bool receive_local(dan_pmsg* m)
+{
+    if (done_receiving_peers(m->peers))
     {
-        if (done_receiving_peers(m->peers))
-        {
-            while(!done_sending_peers(m->peers));
-            return false;
-        }
+        while(!done_sending_peers(m->peers));
+        return false;
     }
+    while (!receive_local_peer(m->peers,&(m->received)));
+    dan_pmsg_peer* peer = find_peer(m->peers,m->received.peer);
+    DAN_FAIL_IF(!peer,"received from a peer not sent to using local method")
+    peer->received_from = true;
+    return true;
+}
+
+static bool receive_global(dan_pmsg* m)
+{
     m->received.peer = MPI_ANY_SOURCE;
     while (!dan_receive(&(m->received),DAN_PMSG_TAG))
     {
-        if (m->method == dan_pmsg_global)
+        if (m->state == sending)
         {
-            if (m->state == sending)
-            {
-                if (done_sending_peers(m->peers))
-                {
-                    dan_mpi_begin_ibarrier(&(m->ibarrier),m->ibarrier.tag);
-                    m->state = receiving;
-                }
-            }
-            else if (dan_mpi_ibarrier_done(&(m->ibarrier)))
+            if (done_sending_peers(m->peers))
             {
                 dan_mpi_begin_ibarrier(&(m->ibarrier),m->ibarrier.tag);
-                return false;
+                m->state = receiving;
             }
         }
+        else if (dan_mpi_ibarrier_done(&(m->ibarrier)))
+        {
+            dan_mpi_begin_ibarrier(&(m->ibarrier),m->ibarrier.tag);
+            return false;
+        }
     }
-    if (m->method == dan_pmsg_local)
-    {
-        dan_pmsg_peer* peer = find_peer(m->peers,m->received.peer);
-        DAN_FAIL_IF(!peer,"received from a peer not sent to using local method")
-        peer->received_from = true;
-    }
+    return true;
+}
+
+bool dan_pmsg_receive(dan_pmsg* m)
+{
+    static bool (*receive_functions[2])(dan_pmsg* m)=
+    { receive_global, receive_local };
+    if (!receive_functions[m->method](m))
+        return false;
     dan_begin_buffer2(&(m->received.buffer));
     return true;
 }
