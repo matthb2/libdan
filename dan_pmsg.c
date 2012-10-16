@@ -174,7 +174,7 @@ int dan_pmsg_received_from(dan_pmsg* m)
 
 size_t dan_pmsg_received_size(dan_pmsg* m)
 {
-    return m->received.buffer.size;
+    return m->received.buffer.capacity;
 }
 
 void dan_pmsg_free(dan_pmsg* b)

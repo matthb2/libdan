@@ -17,9 +17,11 @@ int main(int argc, char** argv)
     dan_pmsg_send(&m);
     while (dan_pmsg_receive(&m))
     {
+        assert(dan_pmsg_received_size(&m) == sizeof(message));
         int* unpacked = dan_pmsg_unpack(&m,sizeof(int));
         fprintf(stderr,"%d received %d from %d\n",
                 rank,*unpacked,dan_pmsg_received_from(&m));
+        assert(dan_pmsg_received_size(&m) == sizeof(message));
     }
     message = 128;
     fprintf(stderr,"%d stage 2\n",rank);
@@ -28,9 +30,11 @@ int main(int argc, char** argv)
     dan_pmsg_send(&m);
     while (dan_pmsg_receive(&m))
     {
+        assert(dan_pmsg_received_size(&m) == sizeof(message));
         int* unpacked = dan_pmsg_unpack(&m,sizeof(int));
         fprintf(stderr,"%d received %d from %d\n",
                 rank,*unpacked,dan_pmsg_received_from(&m));
+        assert(dan_pmsg_received_size(&m) == sizeof(message));
     }
     int peer2 = (rank+size-1)%size;
     fprintf(stderr,"%d stage 3\n",rank);
@@ -41,9 +45,11 @@ int main(int argc, char** argv)
     dan_pmsg_send(&m);
     while (dan_pmsg_receive(&m))
     {
+        assert(dan_pmsg_received_size(&m) == sizeof(message));
         int* unpacked = dan_pmsg_unpack(&m,sizeof(int));
         fprintf(stderr,"%d received %d from %d\n",
                 rank,*unpacked,dan_pmsg_received_from(&m));
+        assert(dan_pmsg_received_size(&m) == sizeof(message));
     }
     dan_pmsg_free(&m);
     MPI_Finalize();
