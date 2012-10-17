@@ -39,12 +39,14 @@ if (BUILD_MESSAGING)
         dan_mpi.c
         dan_bsp.c
         dan_pmsg.c
-        dan_neighbor.c)
+        dan_neighbor.c
+        PCU.c)
     install(FILES
             dan_mpi.h
             dan_bsp.h
             dan_pmsg.h
             dan_neighbor.h
+            PCU.h
             DESTINATION include)
     add_executable(ibarrier test/mpi_ibarrier.c)
     target_link_libraries(ibarrier dan)
