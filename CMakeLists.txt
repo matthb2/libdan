@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 find_package(MPI) 
-include_directories(MPI_C_INCLUDE_PATH)
+include_directories(${MPI_C_INCLUDE_PATH})
 
 if(CMAKE_C_COMPILER_ID MATCHES GNU OR CMAKE_C_COMPILER_ID MATCHES Intel)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
